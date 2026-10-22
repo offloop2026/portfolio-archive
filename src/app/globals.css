@@ -1,0 +1,299 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #000000;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    background-color: #ffffff;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: -0.015em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  @media (min-width: 768px) {
+    html,
+    body {
+      height: 100vh;
+      overflow: hidden;
+    }
+  }
+
+  /* Pure minimalist anchor reset: no browser blue, no underlines */
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 150ms ease;
+  }
+
+  a:hover {
+    opacity: 0.6;
+  }
+
+  button {
+    font-family: inherit;
+    color: inherit;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    transition: opacity 150ms ease;
+  }
+
+  button:hover {
+    opacity: 0.6;
+  }
+
+  ::selection {
+    background: #000000;
+    color: #ffffff;
+  }
+}
+
+/* Editorial Inverted Box Highlight with multi-line clone break */
+.editorial-highlight {
+  display: inline;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background-color: #000000;
+  color: #ffffff;
+  padding: 2px 6px;
+  font-weight: 500;
+  line-height: 1.65;
+}
+
+/* Fluid Typography Utilities */
+.text-fluid-title {
+  font-size: clamp(20px, 1.8vw, 24px);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.text-fluid-subtitle {
+  font-size: clamp(16.5px, 1.3vw, 18.5px);
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+
+.text-fluid-body {
+  font-size: clamp(16px, 1.15vw, 17.5px);
+  line-height: 1.65;
+  letter-spacing: -0.015em;
+}
+
+.text-fluid-caption {
+  font-size: clamp(15.5px, 1.1vw, 16.5px);
+  line-height: 1.6;
+  letter-spacing: -0.015em;
+}
+
+/* Fluid Column Layout & Spacing */
+.archive-container {
+  width: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+@media (min-width: 769px) {
+  .archive-container {
+    height: 100vh;
+    overflow: hidden;
+    padding-left: clamp(24px, 3vw, 48px);
+    padding-right: clamp(16px, 2.5vw, 40px);
+  }
+}
+
+.column-nav {
+  width: 100%;
+}
+@media (min-width: 769px) {
+  .column-nav {
+    width: 300px !important;
+    min-width: 280px !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+.column-content {
+  width: 100%;
+}
+@media (min-width: 769px) {
+  .column-content {
+    width: 480px !important;
+    min-width: 440px !important;
+    max-width: 520px !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+.column-media {
+  width: 100%;
+  min-width: 100%;
+}
+@media (min-width: 768px) {
+  .column-media {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    max-width: 720px !important;
+    height: 100vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.fluid-paragraph-gap {
+  margin-bottom: clamp(24px, 2.5vw, 32px);
+}
+
+/* Custom sleek thin scrollbar for independent column scrolling */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 2px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+/* Global scrollbar fallback */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #000000;
+}
+
+/* =====================================================================
+   TYPOGRAPHY SYSTEM & MOBILE RESPONSIVE OVERRIDES (18px body, 24px heading)
+   ===================================================================== */
+
+/* 1. 사이트 전체 본문 기본 크기 (기존 대비 약 1.5배 확대, 18px 강제) */
+html, body, p, li, a, span, div, button, input, textarea, label {
+  font-size: 18px !important; /* 최소 17~18px 강제 */
+  line-height: 1.7 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Helvetica Neue", Arial, sans-serif !important;
+  letter-spacing: -0.015em !important;
+}
+
+/* 2. 좌측 대메뉴 및 중앙 작품 타이틀 (24px 강제, font-bold) */
+h1, h2, h3, .title, [class*="title"],
+.section-title,
+.text-fluid-title,
+aside h1, aside h2, aside h3, 
+main h1, main h2, main h3,
+section h1, section h2, section h3 {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  margin-bottom: 16px !important;
+  color: #000000 !important;
+}
+
+/* Ensure child elements inside titles (e.g. button, span) adopt 24px */
+h1 *, h2 *, h3 *, .title *, [class*="title"] *,
+.section-title * {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  color: #000000 !important;
+}
+
+/* 3. 소제목 / 연도 강조 */
+h4, strong, b, .font-bold, .text-fluid-subtitle {
+  font-weight: 700 !important;
+  color: #000000 !important;
+}
+
+/* 4. 검은색 배경 버튼, 뱃지, 태그는 무조건 완전한 흰색 텍스트 강제 */
+.bg-black,
+[class*="bg-black"],
+button.bg-black,
+button[class*="bg-black"],
+.editorial-highlight,
+.active,
+[data-active="true"],
+.selected {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.bg-black *,
+[class*="bg-black"] *,
+button.bg-black *,
+button[class*="bg-black"] *,
+.editorial-highlight *,
+.active *,
+[data-active="true"] *,
+.selected * {
+  color: #ffffff !important;
+}
+
+/* 활성화된 좌측 메뉴 태그 패딩 및 인라인 배치 */
+.active, [data-active="true"], .selected, .editorial-highlight {
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  padding: 2px 6px !important;
+  display: inline !important;
+  box-decoration-break: clone !important;
+  -webkit-box-decoration-break: clone !important;
+}
+
+/* 호버 시 검은색 배경으로 반전되는 버튼의 텍스트 대비 유지 */
+button:hover.hover\:bg-black,
+button[class*="hover:bg-black"]:hover,
+a[class*="hover:bg-black"]:hover {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+button[class*="hover:bg-black"]:hover *,
+a[class*="hover:bg-black"]:hover * {
+  color: #ffffff !important;
+}
+
+/* 5. 모바일 전용 메뉴 버튼 및 닫기 버튼 크기 */
+.mobile-menu-trigger {
+  font-size: 28px !important;
+  letter-spacing: 0.12em !important;
+  line-height: 1 !important;
+}
+
+.mobile-menu-close {
+  font-size: 32px !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+}
+
+
+
