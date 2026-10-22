@@ -92,6 +92,7 @@ export interface ProfileData {
     locationKo: string;
     locationEn: string;
   };
+  updatedAt?: string;
 }
 
 import initialContent from './content.json';

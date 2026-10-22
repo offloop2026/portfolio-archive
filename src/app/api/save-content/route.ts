@@ -1,30 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import fs from 'fs/promises';
-import path from 'path';
-import { profileData as fallbackData, ProfileData } from '@/data/data';
+import { ProfileData } from '@/data/data';
+import { getContentData, saveContentData, getStorageStatus } from '@/lib/contentStorage';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-function getContentFilePath(): string {
-  return path.join(process.cwd(), 'src', 'data', 'content.json');
-}
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const filePath = getContentFilePath();
-    const fileContent = await fs.readFile(filePath, 'utf-8');
-    const data = JSON.parse(fileContent);
-    return NextResponse.json(data, {
+    const { searchParams } = new URL(request.url);
+    if (searchParams.get('status') === 'true') {
+      const status = await getStorageStatus();
+      return NextResponse.json(status, {
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        },
+      });
+    }
+
+    const result = await getContentData();
+    return NextResponse.json(result.data, {
       status: 200,
       headers: {
         'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        'x-storage-source': result.source,
       },
     });
   } catch (error) {
-    console.warn('Could not read content.json, returning fallback profileData:', error);
-    return NextResponse.json(fallbackData, {
+    console.error('API /api/save-content GET error:', error);
+    const fallback = await getContentData();
+    return NextResponse.json(fallback.data, {
       status: 200,
       headers: {
         'Cache-Control': 'no-store, max-age=0, must-revalidate',
@@ -45,16 +51,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const filePath = getContentFilePath();
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
-
-    // Also write to data/content.json if the directory exists
-    try {
-      const backupPath = path.join(process.cwd(), 'data', 'content.json');
-      await fs.writeFile(backupPath, JSON.stringify(data, null, 2), 'utf-8');
-    } catch {
-      // Ignore backup error
-    }
+    const result = await saveContentData(data);
 
     try {
       revalidatePath('/');
@@ -65,15 +62,25 @@ export async function POST(request: NextRequest) {
       console.warn('Revalidation warning:', e);
     }
 
-    return NextResponse.json({
-      success: true,
-      message: '성공적으로 저장되었습니다.',
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error: any) {
-    console.error('Failed to save content:', error);
     return NextResponse.json(
-      { success: false, error: error?.message || 'Failed to write content file' },
+      {
+        success: result.success,
+        storage: result.storage,
+        message: result.message,
+        timestamp: result.timestamp,
+        error: result.error,
+      },
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        },
+      }
+    );
+  } catch (error: any) {
+    console.error('Failed to save content in /api/save-content:', error);
+    return NextResponse.json(
+      { success: false, error: error?.message || 'Failed to process save request' },
       { status: 500 }
     );
   }

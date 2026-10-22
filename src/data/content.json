@@ -4,15 +4,13 @@
     "en": "Yuri Kim (glass.gkim)"
   },
   "bio": {
-    "ko": "신호와 흔적이 어떻게 존재를 감각하게 만들고 공간과 관계를 구성하는지에 관심을 가지고 작업한다. 온라인 생존 게임에서 경험한 음성 채팅, 데이터의 소멸, 공동체의 기억과 같은 경험을 출발점으로 영상, 사운드, 설치 작업을 진행하고 있다. 최근에는 보이지 않는 신호가 공간에 남기는 흔적과 사람들이 관계를 형성하고 유지하는 방식에 주목하며 작업을 확장하고 있다.",
-    "en": "My practice investigates how invisible signals and physical traces evoke the perception of existence, shaping spatial awareness and human relations. Departing from experiences of voice chat in online survival games, data obsolescence, and shared collective memory, I construct video, sound, and spatial installation works. Recently, my work has expanded toward observing the residual marks invisible signals leave across spaces and the delicate ways people form and maintain relations.",
+    "ko": "예술과 사람, 장소의 맥락을 잇는 시각예술 작업과 전시 및 문화예술 프로젝트를 진행하고 있습니다. 조형예술과 미디어 기반의 개인 창작을 이어가는 한편, 한국과 홍콩을 잇는 국제 교류 프로그램 운영 및 성과 전시 기획, 장소 특정적 기획 전시 참여, 공공 문화기관의 콘텐츠 제작과 커뮤니케이션 등 다양한 현장 활동을 함께해 왔습니다. 시각예술 창작에 대한 이해를 바탕으로 전시 콘셉트 구체화부터 공간 연출, 국내외 협업 조율, 비주얼 커뮤니케이션과 아카이빙까지 프로젝트의 흐름을 만들어가는 일에 지속적으로 참여하고 있습니다.",
+    "en": "I work across visual art practices, exhibitions, and cultural projects that connect art, people, and places. Alongside my work in fine arts and digital media, I have participated in a range of initiatives, including international exchange program operations and showcase curation between Korea and Hong Kong, site-oriented exhibition planning, and visual content production for public cultural institutions. Drawing on a background in artistic practice, I engage in various stages of project development—from conceptualization and spatial design to cross-cultural collaboration, visual communication, and archiving.",
     "paragraphsKo": [
-      "신호와 흔적이 어떻게 존재를 감각하게 만들고 공간과 관계를 구성하는지에 관심을 가지고 작업한다. 온라인 생존 게임에서 경험한 음성 채팅, 데이터의 소멸, 공동체의 기억과 같은 경험을 출발점으로 영상, 사운드, 설치 작업을 진행하고 있다.",
-      "최근에는 보이지 않는 신호가 공간에 남기는 흔적과 사람들이 관계를 형성하고 유지하는 방식에 주목하며 작업을 확장하고 있다. 통신 인프라가 점유한 옥상, 우주 공학의 접이식 구조, 가상 데이터와 암석의 결속처럼 실체보다 먼저 감각되거나 비물질적 데이터 이면에 요구되는 물리적 상태를 탐구한다."
+      "예술과 사람, 장소의 맥락을 잇는 시각예술 작업과 전시 및 문화예술 프로젝트를 진행하고 있습니다. 조형예술과 미디어 기반의 개인 창작을 이어가는 한편, 한국과 홍콩을 잇는 국제 교류 프로그램 운영 및 성과 전시 기획, 장소 특정적 기획 전시 참여, 공공 문화기관의 콘텐츠 제작과 커뮤니케이션 등 다양한 현장 활동을 함께해 왔습니다. 시각예술 창작에 대한 이해를 바탕으로 전시 콘셉트 구체화부터 공간 연출, 국내외 협업 조율, 비주얼 커뮤니케이션과 아카이빙까지 프로젝트의 흐름을 만들어가는 일에 지속적으로 참여하고 있습니다."
     ],
     "paragraphsEn": [
-      "My practice investigates how invisible signals and physical traces evoke the perception of existence, shaping spatial awareness and human relations. Departing from experiences of voice chat in online survival games, data obsolescence, and shared collective memory, I construct video, sound, and spatial installation works.",
-      "Recently, my work has expanded toward observing the residual marks invisible signals leave across spaces and the delicate ways people form and maintain relations. Examining deployable aerospace structures, cellular frequencies over urban rooftops, and the deep tethering between immaterial data flows and earthly material labor."
+      "I work across visual art practices, exhibitions, and cultural projects that connect art, people, and places. Alongside my work in fine arts and digital media, I have participated in a range of initiatives, including international exchange program operations and showcase curation between Korea and Hong Kong, site-oriented exhibition planning, and visual content production for public cultural institutions. Drawing on a background in artistic practice, I engage in various stages of project development—from conceptualization and spatial design to cross-cultural collaboration, visual communication, and archiving."
     ]
   },
   "portraitPhotos": [
@@ -527,6 +525,11 @@
           "id": "iap-link-1",
           "label": "↗",
           "url": "https://new.express.adobe.com/webpage/TcUkZlOuRp4Kw"
+        },
+        {
+          "id": "link-1792657597636",
+          "label": "Off-loop_archive↗",
+          "url": "https://offloop2026.github.io/?utm_source=chatgpt.com%23%2Farchive#/archive"
         }
       ],
       "linkLabel": {
@@ -569,6 +572,51 @@
             "ko": "",
             "en": ""
           }
+        },
+        {
+          "id": "proj-media-1792657668607",
+          "type": "image",
+          "url": "/uploads/img-1792657668581-IMG_6149.jpg",
+          "caption": {
+            "ko": "IMG_6149",
+            "en": ""
+          }
+        },
+        {
+          "id": "proj-media-1792657678676",
+          "type": "image",
+          "url": "/uploads/img-1792657678661-IMG_6285.jpg",
+          "caption": {
+            "ko": "IMG_6285",
+            "en": ""
+          }
+        },
+        {
+          "id": "proj-media-1792657683600",
+          "type": "image",
+          "url": "/uploads/img-1792657683571-IMG_6248.jpg",
+          "caption": {
+            "ko": "IMG_6248",
+            "en": ""
+          }
+        },
+        {
+          "id": "proj-media-1792657689031",
+          "type": "image",
+          "url": "/uploads/img-1792657689019-IMG_6295.jpg",
+          "caption": {
+            "ko": "IMG_6295",
+            "en": ""
+          }
+        },
+        {
+          "id": "proj-media-1792657695458",
+          "type": "image",
+          "url": "/uploads/img-1792657695447-IMG_6205.jpg",
+          "caption": {
+            "ko": "IMG_6205",
+            "en": ""
+          }
         }
       ]
     },
@@ -583,14 +631,14 @@
       "contextEn": "Hong Kong Art Market & International Residency",
       "descriptionKo": "한국-홍콩 아티스트 교류 레지던시 《Beyond Stage》에 아티스트로 참여함과 동시에, 양국 작가들의 작업 세계를 아우르는 최종 결과 보고 전시의 총괄 기획 및 큐레이션을 담당했다. 4일간의 집중 레지던시 내 창작 작업을 수행하고 양국 참여 작가들의 작업을 하나의 담론으로 엮는 전시 콘셉트 도출 및 공간 큐레이션을 이끌었다.\n\n도시 간 이동과 언어적 장벽을 매개하는 사운드 아카이브와 양국 작가들의 공동 설치를 총괄 지휘했다.",
       "descriptionEn": "Participated as an artist in the Korea-Hong Kong artist exchange residency 《Beyond Stage》 while concurrently directing and curating the final exhibition encompassing the practices of artists from both countries. Carried out studio work during a four-day intensive residency, formulated the curatorial discourse uniting participating artists, and directed spatial scenography.\n\nCoordinating bilingual editorial publications, cross-border sound archives, and collaborative spatial interventions between Korean and Hong Kong creative practitioners.",
-      "link": "https://www.instagram.com/sarrg_/",
-      "linkUrl": "https://www.instagram.com/sarrg_/",
-      "linkText": "↗",
+      "link": "https://drive.google.com/file/d/1dcd8eh66lb1cgkD8bnIQtR35Ye8k-QQ9/view?usp=drive_link",
+      "linkUrl": "https://drive.google.com/file/d/1dcd8eh66lb1cgkD8bnIQtR35Ye8k-QQ9/view?usp=drive_link",
+      "linkText": "《Beyond stage : Intersecting processes》↗",
       "links": [
         {
           "id": "bs-link-1",
-          "label": "↗",
-          "url": "https://www.instagram.com/sarrg_/"
+          "label": "《Beyond stage : Intersecting processes》↗",
+          "url": "https://drive.google.com/file/d/1dcd8eh66lb1cgkD8bnIQtR35Ye8k-QQ9/view?usp=drive_link"
         }
       ],
       "linkLabel": {
@@ -601,17 +649,17 @@
         {
           "id": "bs-1",
           "type": "image",
-          "url": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=1200&auto=format&fit=crop",
+          "url": "/uploads/img-1792657774322-B0008704.jpg",
           "caption": {
-            "ko": "레지던시 성과 보고 전시 전경: 홍콩 아트 마켓",
-            "en": "Residency outcome exhibition view: Hong Kong Art Market"
+            "ko": "레지던시 성과 보고 전시 전경: 《Beyond stage : Intersecting processes》",
+            "en": "Residency outcome exhibition view: 《Beyond stage : Intersecting processes》"
           },
           "aspect": "landscape"
         },
         {
           "id": "bs-2",
           "type": "image",
-          "url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop",
+          "url": "/uploads/img-1792657778207-B0008655.jpg",
           "caption": {
             "ko": "큐레이토리얼 공간 구성 및 양국 작가 도록 아카이브",
             "en": "Curatorial spatial dialogue and bilingual publication records"
