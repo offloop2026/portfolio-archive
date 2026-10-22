@@ -865,9 +865,6 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                     {authError}
                   </p>
                 )}
-                <p className="text-base text-neutral-500 mt-1.5">
-                  * 관리자 패스코드: 1025
-                </p>
               </div>
               <div className="flex items-center justify-end gap-2 pt-3">
                 <button
@@ -883,10 +880,17 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                 </button>
                 <button
                   type="submit"
-                  className="bg-black text-white px-4 py-1.5 text-base font-bold hover:opacity-80"
-                  style={{ backgroundColor: '#000000', color: '#ffffff', fontWeight: 'bold' }}
+                  style={{
+                    backgroundColor: '#000000',
+                    color: '#ffffff',
+                    padding: '8px 24px',
+                    fontSize: '15px',
+                    fontWeight: 'bold',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
                 >
-                  확인 (Enter)
+                  <span style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}>확인</span>
                 </button>
               </div>
             </form>
