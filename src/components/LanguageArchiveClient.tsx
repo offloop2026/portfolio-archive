@@ -41,6 +41,11 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [uploadingTarget, setUploadingTarget] = useState<string | null>(null);
+  const [storageInfo, setStorageInfo] = useState<{
+    supabaseConfigured: boolean;
+    blobConfigured: boolean;
+    isVercel: boolean;
+  } | null>(null);
 
   // Close mobile drawer on Escape key
   useEffect(() => {
@@ -53,29 +58,61 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Load from /api/content and localStorage on mount
+  // Load storage status and content on mount with smart localStorage preservation
   useEffect(() => {
+    // 1. Fetch storage status
+    fetch('/api/content?status=true')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((info) => {
+        if (info) setStorageInfo(info);
+      })
+      .catch(() => {});
+
+    // 2. Read local cache
     const cached = localStorage.getItem('portfolio_content');
+    const localUpdatedAt = localStorage.getItem('portfolio_content_updated_at');
+    let localParsed: ProfileData | null = null;
     if (cached) {
       try {
-        const parsed = JSON.parse(cached);
-        if (parsed?.artistName && parsed?.works && parsed?.projects) {
-          setContent(parsed);
+        localParsed = JSON.parse(cached);
+        if (localParsed?.artistName && localParsed?.works && localParsed?.projects) {
+          setContent(localParsed);
         }
       } catch (e) {
         console.warn('Could not parse localStorage cache:', e);
       }
     }
 
-    fetch('/api/content')
+    // 3. Fetch server data
+    fetch('/api/content', { cache: 'no-store' })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
       })
       .then((serverData) => {
-        if (serverData?.artistName && serverData?.works && serverData?.projects) {
+        if (!serverData?.artistName || !serverData?.works || !serverData?.projects) return;
+
+        const serverUpdatedAt = serverData.updatedAt;
+        const localTime = localUpdatedAt ? new Date(localUpdatedAt).getTime() : 0;
+        const serverTime = serverUpdatedAt ? new Date(serverUpdatedAt).getTime() : 0;
+
+        // If server data is explicitly newer than our local data (e.g. from cloud DB or another device)
+        if (serverTime > localTime) {
           setContent(serverData);
           localStorage.setItem('portfolio_content', JSON.stringify(serverData));
+          if (serverUpdatedAt) {
+            localStorage.setItem('portfolio_content_updated_at', serverUpdatedAt);
+          }
+        } else if (localParsed && localTime > 0) {
+          // Local edits are newer than server! Preserving local edits on refresh
+          console.log('Preserved newer local edits from localStorage. Local time:', localUpdatedAt, 'Server time:', serverUpdatedAt);
+        } else {
+          // Fresh session with no local edits
+          setContent(serverData);
+          localStorage.setItem('portfolio_content', JSON.stringify(serverData));
+          if (serverUpdatedAt) {
+            localStorage.setItem('portfolio_content_updated_at', serverUpdatedAt);
+          }
         }
       })
       .catch((err) => {
@@ -212,38 +249,62 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
 
   const handleSaveToServer = async () => {
     setSaveStatus('saving');
+    const timestamp = new Date().toISOString();
+    const contentToSave: ProfileData = {
+      ...content,
+      updatedAt: timestamp,
+    };
+
+    // 1. Instantly persist to localStorage with timestamp so data is NEVER lost on reload
+    try {
+      localStorage.setItem('portfolio_content', JSON.stringify(contentToSave));
+      localStorage.setItem('portfolio_content_updated_at', timestamp);
+    } catch (lsErr) {
+      console.warn('localStorage save warning:', lsErr);
+    }
+
+    setContent(contentToSave);
+
+    // 2. Persist to API route (Supabase -> Vercel Blob -> local fs)
     try {
       const response = await fetch('/api/save-content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: content }),
+        body: JSON.stringify({ data: contentToSave }),
       });
 
       const resJson = await response.json();
 
       if (response.ok && resJson.success) {
-        localStorage.setItem('portfolio_content', JSON.stringify(content));
         setHasUnsavedChanges(false);
         setSaveStatus('saved');
-        triggerToast('✓ 성공적으로 저장되었습니다.');
+        if (resJson.storage === 'supabase') {
+          triggerToast('✓ 클라우드 DB(Supabase) 및 로컬에 영구 저장되었습니다.');
+        } else if (resJson.storage === 'blob') {
+          triggerToast('✓ Vercel Blob 클라우드 및 로컬에 영구 저장되었습니다.');
+        } else if (resJson.storage === 'file') {
+          triggerToast('✓ 파일 시스템 및 로컬에 성공적으로 저장되었습니다.');
+        } else {
+          triggerToast('✓ 브라우저(localStorage)에 안전하게 저장되었습니다 (새로고침 유지).');
+        }
         setTimeout(() => setSaveStatus('idle'), 2500);
       } else {
-        throw new Error(resJson.error || 'Server save failed');
+        throw new Error(resJson.error || 'Server save returned unsuccessful');
       }
     } catch (err: any) {
-      console.warn('API save failed, executing local fallback:', err);
-      localStorage.setItem('portfolio_content', JSON.stringify(content));
+      console.warn('API save fallback, preserved in localStorage:', err);
       setHasUnsavedChanges(false);
       setSaveStatus('idle');
-      handleExportJSON();
-      triggerToast('✓ 로컬 스토리지에 저장 및 백업 파일이 다운로드되었습니다.');
+      triggerToast('✓ 브라우저(localStorage)에 안전하게 저장되었습니다 (새로고침 유지).');
     }
   };
 
   const handleDiscardChanges = async () => {
-    if (!window.confirm('모든 수정 내용을 취소하고 마지막 저장 상태로 되돌리시겠습니까?')) return;
+    if (!window.confirm('모든 수정 내용을 취소하고 서버의 원본 상태로 되돌리시겠습니까? 로컬 캐시도 함께 초기화됩니다.')) return;
     try {
-      const res = await fetch('/api/content');
+      localStorage.removeItem('portfolio_content');
+      localStorage.removeItem('portfolio_content_updated_at');
+      const res = await fetch('/api/content', { cache: 'no-store' });
       if (res.ok) {
         const fresh = await res.json();
         setContent(fresh);
@@ -254,7 +315,7 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
       setContent(initialProfileData);
     }
     setHasUnsavedChanges(false);
-    triggerToast('수정 내용이 취소되었습니다.');
+    triggerToast('수정 내용이 취소되고 서버 상태로 복구되었습니다.');
   };
 
   const handleExportJSON = () => {
@@ -873,6 +934,28 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
             ) : (
               <span className="text-base text-neutral-400">
                 저장 상태: 최신
+              </span>
+            )}
+            {storageInfo?.supabaseConfigured ? (
+              <span
+                className="hidden lg:inline-flex items-center gap-1 text-[13px] text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded"
+                title="Supabase DB와 연동되어 클라우드에 영구 저장됩니다."
+              >
+                ☁ Supabase 연동됨
+              </span>
+            ) : storageInfo?.blobConfigured ? (
+              <span
+                className="hidden lg:inline-flex items-center gap-1 text-[13px] text-sky-400 border border-sky-800 px-2 py-0.5 rounded"
+                title="Vercel Blob 클라우드에 저장됩니다."
+              >
+                ☁ Vercel Blob 연동됨
+              </span>
+            ) : (
+              <span
+                className="hidden lg:inline-flex items-center gap-1 text-[13px] text-amber-300 border border-amber-800 px-2 py-0.5 rounded"
+                title="현재 브라우저 localStorage에 안전하게 보존됩니다. Vercel 배포 시 영구 저장을 위해 Supabase 환경변수를 등록하세요."
+              >
+                💾 로컬 저장 모드
               </span>
             )}
           </div>

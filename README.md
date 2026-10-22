@@ -97,19 +97,40 @@ npm run start -- -p 3000
 
 ---
 
-## 🛠 Admin / Edit Mode (인라인 편집 및 서버 저장)
+## 🛠 Admin / Edit Mode (인라인 편집 및 클라우드 영구 저장)
 
 1. **관리자 모드 활성화 (Edit Mode Toggle)**:
-   - 좌측 사이드바 하단 `Edit (관리)` 버튼 클릭.
-   - 보안 인증 패스코드 입력 (기본 패스코드: `2026` 또는 `1234`).
+   - 좌측 사이드바 하단 `[edit]` 버튼 클릭.
+   - 보안 인증 패스코드 입력 (`1025`).
 2. **인라인 텍스트 및 미디어 수정**:
    - **CV 뷰**: 작가 국/영문명, 바이오 문단(`+ 문단 추가`, `- 삭제`), 학력 및 연락처 정보, 전시 및 경력 이력(`+ 새 카테고리`, `+ 항목 추가`, `- 삭제`).
-   - **작업 (Works)**: 사이드바의 `+ Add`로 새 작업 추가, 제목/연도/제원/설명문 수정, 미디어 이미지 추가/삭제 및 캡션 편집, 작업 삭제.
-   - **프로젝트 (Projects)**: `+ Add`로 새 프로젝트 추가, 기간/역할/기관/설명문/링크 수정, 미디어 추가/삭제 및 캡션 편집.
-3. **서버 저장 (Save to Server)**:
-   - 상단 블랙 상태 바의 `💾 서버에 저장 (Save)` 클릭 시 `POST /api/save-content`를 호출하여 `src/data/content.json`에 영구 저장.
-   - 저장 완료 시 미니멀 토스트 알림(`✓ 성공적으로 저장되었습니다.`) 피드백.
-   - 정적/오프라인 환경 대비 `localStorage` 자동 백업 및 `JSON 백업` 파일 다운로드 기능 내장.
+   - **작업 (Works)**: 사이드바의 `+ 새 작업 추가`로 새 작업 추가, 제목/연도/제원/설명문 수정, 미디어 이미지 추가/삭제 및 캡션 편집, 작업 삭제.
+   - **프로젝트 (Projects)**: `+ 새 프로젝트 추가`로 새 프로젝트 추가, 기간/역할/기관/설명문/다중 링크(`+ 새 링크 행 추가`, `✕ 삭제`) 수정, 미디어 추가/삭제 및 캡션 편집.
+3. **영구 저장 아키텍처 (Cloud DB & LocalStorage Fallback)**:
+   - **Supabase Cloud DB 연동 (Vercel 배포 시 영구 보존)**:
+     - Vercel 서버리스는 로컬 파일 쓰기(`fs.writeFile`)가 불가능한 읽기 전용 환경이므로, Supabase를 연동하여 온라인 수정 내용을 영구 보존합니다.
+     - **설정 방법**:
+       1. [Supabase](https://supabase.com) 무료 프로젝트 생성.
+       2. [SQL Editor]에서 테이블 생성:
+          ```sql
+          CREATE TABLE IF NOT EXISTS site_content (
+            id TEXT PRIMARY KEY DEFAULT 'current',
+            data JSONB NOT NULL,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+          );
+          ALTER TABLE site_content ENABLE ROW LEVEL SECURITY;
+          CREATE POLICY "Public read" ON site_content FOR SELECT USING (true);
+          CREATE POLICY "Public write" ON site_content FOR ALL USING (true) WITH CHECK (true);
+          ```
+       3. Vercel 환경 변수(Settings -> Environment Variables)에 등록:
+          - `NEXT_PUBLIC_SUPABASE_URL`: Supabase 프로젝트 URL
+          - `SUPABASE_SERVICE_ROLE_KEY`: Supabase Service Role Key (또는 `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+   - **스마트 LocalStorage 백업 및 Fallback**:
+     - 클라우드 DB 세팅 전이거나 네트워크 단절 시에도 `localStorage`에 `updatedAt` 타임스탬프와 함께 자동 백업됩니다.
+     - 새로고침 시 서버의 오래된 정적 빌드 데이터가 로컬 최신 수정본을 덮어쓰지 않도록 타임스탬프 기반 지능형 동기화(Smart Sync)가 작동합니다.
+     - 상단 바의 `[되돌리기]` 클릭 시 로컬 캐시를 초기화하고 서버 원본 데이터로 깨끗하게 복구할 수 있습니다.
+   - **JSON 오프라인 백업**:
+     - 상단 상태 바의 `[JSON 백업]` 버튼을 눌러 언제든지 전체 포트폴리오 데이터를 JSON 파일로 다운로드할 수 있습니다.
 
 ---
 
