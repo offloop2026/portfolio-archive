@@ -45,6 +45,8 @@ export interface ProjectItem {
   descriptionEn: string;
   link?: string;
   linkLabel?: LocalizedString;
+  linkUrl?: string;
+  linkText?: string;
   media: MediaItem[];
 }
 

@@ -380,7 +380,9 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
       descriptionKo: '프로젝트 개요를 입력하세요.',
       descriptionEn: 'Enter project overview here.',
       link: '',
-      linkLabel: { ko: '공식 링크 ↗', en: 'Official Link ↗' },
+      linkUrl: '',
+      linkText: '↗',
+      linkLabel: { ko: '↗', en: '↗' },
       media: [
         {
           id: `proj-media-${Date.now()}`,
@@ -2015,17 +2017,46 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                           className="w-full border border-neutral-300 px-2 py-1 text-base text-neutral-800"
                           placeholder="Context / Institution (English)"
                         />
-                        <div className="pt-2">
-                          <label className="text-base font-bold uppercase text-neutral-500 block">
-                            웹사이트 링크
+                        <div className="pt-3 border-t border-neutral-200 mt-2 space-y-2">
+                          <label className="text-[14px] font-bold uppercase text-neutral-500 block">
+                            외부 링크 설정 (선택사항)
                           </label>
-                          <input
-                            type="url"
-                            value={activeProject.link || ''}
-                            onChange={(e) => updateActiveProject({ link: e.target.value })}
-                            className="w-full border border-neutral-300 px-2 py-1 text-base"
-                            placeholder="https://..."
-                          />
+                          <div>
+                            <label className="text-[13px] text-neutral-600 block mb-0.5">
+                              링크 라벨 / 버튼 텍스트 (비워둘 시 기본 '↗' 표시)
+                            </label>
+                            <input
+                              type="text"
+                              value={activeProject.linkText ?? (activeProject.linkLabel?.ko || '')}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateActiveProject({
+                                  linkText: val,
+                                  linkLabel: { ko: val, en: val },
+                                });
+                              }}
+                              className="w-full border border-neutral-300 px-2 py-1 text-base text-black bg-white"
+                              placeholder="예: ↗ 또는 링크 바로가기 ↗"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[13px] text-neutral-600 block mb-0.5">
+                              연결 URL 주소 (비워둘 경우 버튼 숨김)
+                            </label>
+                            <input
+                              type="url"
+                              value={activeProject.linkUrl ?? (activeProject.link || '')}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateActiveProject({
+                                  linkUrl: val,
+                                  link: val,
+                                });
+                              }}
+                              className="w-full border border-neutral-300 px-2 py-1 text-base text-black bg-white"
+                              placeholder="https://..."
+                            />
+                          </div>
                         </div>
                       </div>
                     ) : (
@@ -2037,20 +2068,38 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                     )}
                   </div>
 
-                  {/* Official Website Link Button */}
-                  {activeProject.link && (
-                    <div className="pt-2 text-left">
-                      <a
-                        href={activeProject.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block border border-black px-4 py-2 text-fluid-body font-medium text-black hover:bg-black hover:text-white transition-colors"
-                      >
-                        <span>{activeProject.linkLabel?.ko || '관련 공식 아카이브 링크 ↗'}</span>
-                        <span className="text-neutral-600 ml-1.5">({activeProject.linkLabel?.en || 'View Official Link ↗'})</span>
-                      </a>
-                    </div>
-                  )}
+                  {/* Compact Square External Link Button */}
+                  {(() => {
+                    const projectLinkUrl = (activeProject.linkUrl || activeProject.link || '').trim();
+                    const rawLinkText = (activeProject.linkText || activeProject.linkLabel?.ko || '').trim();
+                    const displayLinkText = rawLinkText || '↗';
+
+                    if (!projectLinkUrl) return null;
+
+                    return (
+                      <div className="pt-3 text-left">
+                        <a
+                          href={projectLinkUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center border border-black hover:bg-black hover:text-white transition-colors duration-150 select-none group"
+                          style={{
+                            border: '1px solid #000000',
+                            padding: displayLinkText === '↗' ? '4px 10px' : '4px 12px',
+                            fontSize: '15px',
+                            fontWeight: 500,
+                            lineHeight: '1.4',
+                            textDecoration: 'none',
+                          }}
+                          title={projectLinkUrl}
+                        >
+                          <span className="group-hover:text-white transition-colors" style={{ color: 'inherit' }}>
+                            {displayLinkText}
+                          </span>
+                        </a>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
