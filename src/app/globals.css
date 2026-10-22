@@ -199,16 +199,29 @@
    TYPOGRAPHY SYSTEM & MOBILE RESPONSIVE OVERRIDES (18px body, 24px heading)
    ===================================================================== */
 
-/* 1. 사이트 전체 본문 기본 크기 (기존 대비 약 1.5배 확대, 18px 강제) */
-html, body, p, li, a, span, div, button, input, textarea, label {
-  font-size: 18px !important; /* 최소 17~18px 강제 */
+/* 1. 사이트 전체 본문 기본 크기 및 기본 텍스트 검은색(#111111) */
+html, body {
+  font-size: 18px !important;
+  line-height: 1.7 !important;
+  color: #111111 !important;
+  background-color: #ffffff !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Helvetica Neue", Arial, sans-serif !important;
+  letter-spacing: -0.015em !important;
+}
+
+p, li, a, span, div, button, input, textarea, label {
+  font-size: 18px !important;
   line-height: 1.7 !important;
   font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Helvetica Neue", Arial, sans-serif !important;
   letter-spacing: -0.015em !important;
 }
 
-/* 2. 좌측 대메뉴 및 중앙 작품 타이틀 (24px 강제, font-bold) */
-h1, h2, h3, .title, [class*="title"],
+p, li, a, button, input, textarea, label {
+  color: #111111;
+}
+
+/* 2. 좌측 대메뉴 및 중앙 작품 타이틀 (24px 강제, 선명한 순수 흑색 #000000) */
+h1, h2, h3, .title,
 .section-title,
 .text-fluid-title,
 aside h1, aside h2, aside h3, 
@@ -221,8 +234,8 @@ section h1, section h2, section h3 {
   color: #000000 !important;
 }
 
-/* Ensure child elements inside titles (e.g. button, span) adopt 24px */
-h1 *, h2 *, h3 *, .title *, [class*="title"] *,
+/* Ensure child elements inside titles (e.g. button, span) adopt 24px black */
+h1 *, h2 *, h3 *, .title *,
 .section-title * {
   font-size: 24px !important;
   font-weight: 700 !important;
@@ -236,50 +249,48 @@ h4, strong, b, .font-bold, .text-fluid-subtitle {
   color: #000000 !important;
 }
 
-/* 4. 검은색 배경 버튼, 뱃지, 태그는 무조건 완전한 흰색 텍스트 강제 */
-.bg-black,
-[class*="bg-black"],
-button.bg-black,
-button[class*="bg-black"],
+/* 4. 활성화된 모든 메뉴 요소 및 그 자식 글자색 무조건 흰색 강제 */
 .editorial-highlight,
+.editorial-highlight *,
 .active,
+.active *,
 [data-active="true"],
-.selected {
+[data-active="true"] *,
+.selected,
+.selected *,
+li .editorial-highlight,
+button .editorial-highlight,
+a .editorial-highlight,
+li .active,
+button .active,
+a .active,
+span.editorial-highlight,
+span.active,
+span.selected {
   background-color: #000000 !important;
   color: #ffffff !important;
-}
-
-.bg-black *,
-[class*="bg-black"] *,
-button.bg-black *,
-button[class*="bg-black"] *,
-.editorial-highlight *,
-.active *,
-[data-active="true"] *,
-.selected * {
-  color: #ffffff !important;
-}
-
-/* 활성화된 좌측 메뉴 태그 패딩 및 인라인 배치 */
-.active, [data-active="true"], .selected, .editorial-highlight {
-  font-size: 17px !important;
-  font-weight: 700 !important;
+  -webkit-text-fill-color: #ffffff !important; /* 웹킷 브라우저 텍스트 강제 흰색 */
   padding: 2px 6px !important;
   display: inline !important;
   box-decoration-break: clone !important;
   -webkit-box-decoration-break: clone !important;
 }
 
-/* 호버 시 검은색 배경으로 반전되는 버튼의 텍스트 대비 유지 */
-button:hover.hover\:bg-black,
-button[class*="hover:bg-black"]:hover,
-a[class*="hover:bg-black"]:hover {
+/* 검은색 버튼류 */
+button.bg-black,
+button.bg-black *,
+.toast-black,
+.toast-black * {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
-button[class*="hover:bg-black"]:hover *,
-a[class*="hover:bg-black"]:hover * {
-  color: #ffffff !important;
+
+/* 흰색 배경을 가진 버튼/박스 내부 텍스트는 무조건 검은색 강제 (편집바 내부의 저장 버튼 등) */
+button.bg-white,
+button.bg-white *,
+.bg-white button,
+.bg-white button * {
+  color: #000000 !important;
 }
 
 /* 5. 모바일 전용 메뉴 버튼 및 닫기 버튼 크기 */

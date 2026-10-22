@@ -742,24 +742,14 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
           {content.artistName.ko}
         </button>
 
-        <div className="flex items-center gap-3">
-          <Link
-            href={lang === 'ko' ? '/en' : '/ko'}
-            className="text-sm font-bold text-neutral-600 hover:text-black border border-neutral-300 px-2 py-0.5 transition-colors"
-            style={{ fontSize: '13px', lineHeight: '1.4', color: '#333333' }}
-            title="언어 변경 (Language Switch)"
-          >
-            {lang === 'ko' ? 'EN' : 'KO'}
-          </Link>
-          <button
-            type="button"
-            aria-label="메뉴 열기"
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="mobile-menu-trigger p-1 text-black hover:opacity-60 transition-opacity"
-          >
-            •••
-          </button>
-        </div>
+        <button
+          type="button"
+          aria-label="메뉴 열기"
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="mobile-menu-trigger p-1 text-black hover:opacity-60 transition-opacity"
+        >
+          •••
+        </button>
       </header>
 
       {/* =====================================================================
@@ -824,8 +814,17 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                   }
                   style={
                     activeSelection.section === 'cv'
-                      ? { fontSize: '17px', backgroundColor: '#000', color: '#fff', padding: '2px 6px', display: 'inline' }
-                      : { fontSize: '17px', lineHeight: '1.6', color: '#000' }
+                      ? {
+                          fontSize: '17px',
+                          backgroundColor: '#000000',
+                          color: '#ffffff',
+                          WebkitTextFillColor: '#ffffff',
+                          padding: '2px 6px',
+                          display: 'inline',
+                          boxDecorationBreak: 'clone',
+                          WebkitBoxDecorationBreak: 'clone',
+                        }
+                      : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
                   }
                   data-active={activeSelection.section === 'cv' ? 'true' : undefined}
                 >
@@ -868,8 +867,17 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                           }
                           style={
                             isActive
-                              ? { fontSize: '17px', backgroundColor: '#000', color: '#fff', padding: '2px 6px', display: 'inline' }
-                              : { fontSize: '17px', lineHeight: '1.6', color: '#000' }
+                              ? {
+                                  fontSize: '17px',
+                                  backgroundColor: '#000000',
+                                  color: '#ffffff',
+                                  WebkitTextFillColor: '#ffffff',
+                                  padding: '2px 6px',
+                                  display: 'inline',
+                                  boxDecorationBreak: 'clone',
+                                  WebkitBoxDecorationBreak: 'clone',
+                                }
+                              : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
                           }
                           data-active={isActive ? 'true' : undefined}
                         >
@@ -916,8 +924,17 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                           }
                           style={
                             isActive
-                              ? { fontSize: '17px', backgroundColor: '#000', color: '#fff', padding: '2px 6px', display: 'inline' }
-                              : { fontSize: '17px', lineHeight: '1.6', color: '#000' }
+                              ? {
+                                  fontSize: '17px',
+                                  backgroundColor: '#000000',
+                                  color: '#ffffff',
+                                  WebkitTextFillColor: '#ffffff',
+                                  padding: '2px 6px',
+                                  display: 'inline',
+                                  boxDecorationBreak: 'clone',
+                                  WebkitBoxDecorationBreak: 'clone',
+                                }
+                              : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
                           }
                           data-active={isActive ? 'true' : undefined}
                         >
@@ -987,31 +1004,21 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
             }}
           >
             
-            {/* Top Identity: Bold Section Title & Language Switch */}
+            {/* Top Identity: Bold Section Title */}
             <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h1
-                  className="title section-title tracking-tight text-black m-0 p-0"
-                  style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1.3' }}
+              <h1
+                className="title section-title tracking-tight text-black m-0 p-0 mb-4"
+                style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1.3' }}
+              >
+                <button
+                  type="button"
+                  onClick={() => handleSelect({ section: 'cv' })}
+                  className="hover:opacity-70 transition-opacity block text-left"
+                  style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1.3', color: '#000000' }}
                 >
-                  <button
-                    type="button"
-                    onClick={() => handleSelect({ section: 'cv' })}
-                    className="hover:opacity-70 transition-opacity block text-left"
-                    style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1.3', color: '#000' }}
-                  >
-                    {lang === 'ko' ? content.artistName.ko : content.artistName.en}
-                  </button>
-                </h1>
-                <Link
-                  href={lang === 'ko' ? '/en' : '/ko'}
-                  className="text-sm font-bold text-neutral-600 hover:text-black border border-neutral-300 hover:border-black px-2 py-0.5 transition-colors"
-                  style={{ fontSize: '13px', lineHeight: '1.4', color: '#333333' }}
-                  title="언어 변경 (Switch Language)"
-                >
-                  {lang === 'ko' ? 'EN ↗' : 'KO ↗'}
-                </Link>
-              </div>
+                  {content.artistName.ko}
+                </button>
+              </h1>
             </div>
 
             {/* 1. CV Section */}
@@ -1039,8 +1046,17 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                       }
                       style={
                         activeSelection.section === 'cv'
-                          ? { fontSize: '17px', backgroundColor: '#000', color: '#fff', padding: '2px 6px', display: 'inline' }
-                          : { fontSize: '17px', lineHeight: '1.6', color: '#000' }
+                          ? {
+                              fontSize: '17px',
+                              backgroundColor: '#000000',
+                              color: '#ffffff',
+                              WebkitTextFillColor: '#ffffff',
+                              padding: '2px 6px',
+                              display: 'inline',
+                              boxDecorationBreak: 'clone',
+                              WebkitBoxDecorationBreak: 'clone',
+                            }
+                          : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
                       }
                       data-active={activeSelection.section === 'cv' ? 'true' : undefined}
                     >
@@ -1093,8 +1109,17 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                             }
                             style={
                               isActive
-                                ? { fontSize: '17px', backgroundColor: '#000', color: '#fff', padding: '2px 6px', display: 'inline' }
-                                : { fontSize: '17px', lineHeight: '1.6', color: '#000' }
+                                ? {
+                                    fontSize: '17px',
+                                    backgroundColor: '#000000',
+                                    color: '#ffffff',
+                                    WebkitTextFillColor: '#ffffff',
+                                    padding: '2px 6px',
+                                    display: 'inline',
+                                    boxDecorationBreak: 'clone',
+                                    WebkitBoxDecorationBreak: 'clone',
+                                  }
+                                : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
                             }
                             data-active={isActive ? 'true' : undefined}
                           >
@@ -1150,8 +1175,17 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                             }
                             style={
                               isActive
-                                ? { fontSize: '17px', backgroundColor: '#000', color: '#fff', padding: '2px 6px', display: 'inline' }
-                                : { fontSize: '17px', lineHeight: '1.6', color: '#000' }
+                                ? {
+                                    fontSize: '17px',
+                                    backgroundColor: '#000000',
+                                    color: '#ffffff',
+                                    WebkitTextFillColor: '#ffffff',
+                                    padding: '2px 6px',
+                                    display: 'inline',
+                                    boxDecorationBreak: 'clone',
+                                    WebkitBoxDecorationBreak: 'clone',
+                                  }
+                                : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
                             }
                             data-active={isActive ? 'true' : undefined}
                           >
@@ -1410,9 +1444,9 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                     </div>
                   </div>
 
-                  {/* Profile Metadata */}
+                  {/* Profile Metadata - No horizontal border line */}
                   <div
-                    className="space-y-2.5 text-left pt-6 border-t border-neutral-200 mt-8"
+                    className="space-y-2.5 text-left pt-8 mt-8"
                     style={{ fontSize: '17px', lineHeight: '1.6', color: '#222' }}
                   >
                     <div>한국예술종합학교 미술원 조형예술과 (BFA)</div>
@@ -1554,9 +1588,9 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                     )}
                   </div>
 
-                  {/* Natural Narrative Metadata Block (Korean) - MOVED TO BOTTOM OF ESSAY */}
+                  {/* Natural Narrative Metadata Block (Korean) - MOVED TO BOTTOM OF ESSAY, No border line */}
                   <div
-                    className="pt-6 border-t border-neutral-200 mb-6 space-y-1 text-left"
+                    className="pt-8 mb-6 space-y-1 text-left"
                     style={{ fontSize: '17px', lineHeight: '1.6', color: '#222' }}
                   >
                     {isEditMode ? (
@@ -1752,9 +1786,9 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                     )}
                   </div>
 
-                  {/* Natural Narrative Metadata Block (Korean) - MOVED TO BOTTOM OF ESSAY */}
+                  {/* Natural Narrative Metadata Block (Korean) - MOVED TO BOTTOM OF ESSAY, No border line */}
                   <div
-                    className="pt-6 border-t border-neutral-200 mb-6 space-y-1 text-left"
+                    className="pt-8 mb-6 space-y-1 text-left"
                     style={{ fontSize: '17px', lineHeight: '1.6', color: '#222' }}
                   >
                     {isEditMode ? (
