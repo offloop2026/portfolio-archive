@@ -32,6 +32,12 @@ export interface WorkItem {
   media: MediaItem[];
 }
 
+export interface ProjectLinkItem {
+  id: string;
+  label?: string;
+  url: string;
+}
+
 export interface ProjectItem {
   id: string;
   titleKo: string;
@@ -47,6 +53,7 @@ export interface ProjectItem {
   linkLabel?: LocalizedString;
   linkUrl?: string;
   linkText?: string;
+  links?: ProjectLinkItem[];
   media: MediaItem[];
 }
 

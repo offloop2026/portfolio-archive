@@ -522,6 +522,13 @@
       "link": "https://new.express.adobe.com/webpage/TcUkZlOuRp4Kw",
       "linkUrl": "https://new.express.adobe.com/webpage/TcUkZlOuRp4Kw",
       "linkText": "↗",
+      "links": [
+        {
+          "id": "iap-link-1",
+          "label": "↗",
+          "url": "https://new.express.adobe.com/webpage/TcUkZlOuRp4Kw"
+        }
+      ],
       "linkLabel": {
         "ko": "↗",
         "en": "↗"
@@ -579,6 +586,13 @@
       "link": "https://www.instagram.com/sarrg_/",
       "linkUrl": "https://www.instagram.com/sarrg_/",
       "linkText": "↗",
+      "links": [
+        {
+          "id": "bs-link-1",
+          "label": "↗",
+          "url": "https://www.instagram.com/sarrg_/"
+        }
+      ],
       "linkLabel": {
         "ko": "↗",
         "en": "↗"
@@ -620,10 +634,13 @@
       "link": "https://www.karts.ac.kr",
       "linkUrl": "https://www.karts.ac.kr",
       "linkText": "↗",
-      "linkLabel": {
-        "ko": "↗",
-        "en": "↗"
-      },
+      "links": [
+        {
+          "id": "g175-link-1",
+          "label": "↗",
+          "url": "https://www.karts.ac.kr"
+        }
+      ],
       "media": [
         {
           "id": "g175-1",

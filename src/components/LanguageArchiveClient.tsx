@@ -9,6 +9,7 @@ import {
   ProfileData,
   WorkItem,
   ProjectItem,
+  ProjectLinkItem,
   CVHistoryCategory,
   CVHistoryItem,
   MediaItem,
@@ -381,7 +382,8 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
       descriptionEn: 'Enter project overview here.',
       link: '',
       linkUrl: '',
-      linkText: '↗',
+      linkText: '',
+      links: [],
       linkLabel: { ko: '↗', en: '↗' },
       media: [
         {
@@ -421,6 +423,99 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
     setContent((prev) => ({
       ...prev,
       projects: prev.projects.map((p) => (p.id === activeProject.id ? { ...p, ...updates } : p)),
+    }));
+    setHasUnsavedChanges(true);
+  };
+
+  // ---------------------------------------------------------------------------
+  // 3-B. PROJECT MULTI-LINK HELPERS
+  // ---------------------------------------------------------------------------
+  const getProjectLinks = (proj?: ProjectItem): ProjectLinkItem[] => {
+    if (!proj) return [];
+    if (Array.isArray(proj.links) && proj.links.length > 0) {
+      return proj.links;
+    }
+    const singleUrl = (proj.linkUrl || proj.link || '').trim();
+    if (singleUrl) {
+      const rawLabel = (proj.linkText || (typeof proj.linkLabel === 'string' ? proj.linkLabel : proj.linkLabel?.ko) || '').trim();
+      return [
+        {
+          id: `link-legacy-${proj.id}`,
+          label: rawLabel || '↗',
+          url: singleUrl,
+        },
+      ];
+    }
+    return [];
+  };
+
+  const handleAddProjectLink = (projId: string) => {
+    setContent((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) => {
+        if (p.id !== projId) return p;
+        const currentLinks = getProjectLinks(p);
+        const newLink: ProjectLinkItem = {
+          id: `link-${Date.now()}`,
+          label: '',
+          url: '',
+        };
+        const updatedLinks = [...currentLinks, newLink];
+        return {
+          ...p,
+          links: updatedLinks,
+          linkUrl: updatedLinks[0]?.url || '',
+          link: updatedLinks[0]?.url || '',
+          linkText: updatedLinks[0]?.label || '',
+        };
+      }),
+    }));
+    setHasUnsavedChanges(true);
+  };
+
+  const handleDeleteProjectLink = (projId: string, linkIdx: number) => {
+    setContent((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) => {
+        if (p.id !== projId) return p;
+        const currentLinks = getProjectLinks(p);
+        const updatedLinks = currentLinks.filter((_, i) => i !== linkIdx);
+        return {
+          ...p,
+          links: updatedLinks,
+          linkUrl: updatedLinks[0]?.url || '',
+          link: updatedLinks[0]?.url || '',
+          linkText: updatedLinks[0]?.label || '',
+        };
+      }),
+    }));
+    setHasUnsavedChanges(true);
+  };
+
+  const handleUpdateProjectLink = (
+    projId: string,
+    linkIdx: number,
+    field: 'label' | 'url',
+    value: string
+  ) => {
+    setContent((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) => {
+        if (p.id !== projId) return p;
+        const currentLinks = [...getProjectLinks(p)];
+        if (!currentLinks[linkIdx]) return p;
+        currentLinks[linkIdx] = {
+          ...currentLinks[linkIdx],
+          [field]: value,
+        };
+        return {
+          ...p,
+          links: currentLinks,
+          linkUrl: currentLinks[0]?.url || '',
+          link: currentLinks[0]?.url || '',
+          linkText: currentLinks[0]?.label || '',
+        };
+      }),
     }));
     setHasUnsavedChanges(true);
   };
@@ -2017,45 +2112,90 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                           className="w-full border border-neutral-300 px-2 py-1 text-base text-neutral-800"
                           placeholder="Context / Institution (English)"
                         />
-                        <div className="pt-3 border-t border-neutral-200 mt-2 space-y-2">
-                          <label className="text-[14px] font-bold uppercase text-neutral-500 block">
-                            외부 링크 설정 (선택사항)
-                          </label>
-                          <div>
-                            <label className="text-[13px] text-neutral-600 block mb-0.5">
-                              링크 라벨 / 버튼 텍스트 (비워둘 시 기본 '↗' 표시)
+                        {/* Dynamic Multi-link Management */}
+                        <div className="pt-3 border-t border-neutral-300 mt-3 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <label className="text-[14px] font-bold uppercase text-neutral-600 block">
+                              외부 웹사이트 링크 관리 ({getProjectLinks(activeProject).length}개)
                             </label>
-                            <input
-                              type="text"
-                              value={activeProject.linkText ?? (activeProject.linkLabel?.ko || '')}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                updateActiveProject({
-                                  linkText: val,
-                                  linkLabel: { ko: val, en: val },
-                                });
-                              }}
-                              className="w-full border border-neutral-300 px-2 py-1 text-base text-black bg-white"
-                              placeholder="예: ↗ 또는 링크 바로가기 ↗"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => handleAddProjectLink(activeProject.id)}
+                              className="text-[13px] font-bold text-black border border-black px-2 py-0.5 hover:bg-black hover:text-white transition-colors"
+                              style={{ border: '1px solid #000000' }}
+                            >
+                              + 링크 추가
+                            </button>
                           </div>
-                          <div>
-                            <label className="text-[13px] text-neutral-600 block mb-0.5">
-                              연결 URL 주소 (비워둘 경우 버튼 숨김)
-                            </label>
-                            <input
-                              type="url"
-                              value={activeProject.linkUrl ?? (activeProject.link || '')}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                updateActiveProject({
-                                  linkUrl: val,
-                                  link: val,
-                                });
-                              }}
-                              className="w-full border border-neutral-300 px-2 py-1 text-base text-black bg-white"
-                              placeholder="https://..."
-                            />
+
+                          {getProjectLinks(activeProject).length === 0 ? (
+                            <div className="p-3 bg-white border border-neutral-200 text-neutral-500 text-[14px] text-center">
+                              등록된 외부 링크가 없습니다. 위 '+ 링크 추가' 버튼을 눌러 링크를 추가하세요.
+                            </div>
+                          ) : (
+                            <div className="space-y-2.5">
+                              {getProjectLinks(activeProject).map((linkItem, linkIdx) => (
+                                <div
+                                  key={linkItem.id || linkIdx}
+                                  className="p-3 bg-white border border-neutral-300 space-y-2"
+                                >
+                                  <div className="flex justify-between items-center pb-1 border-b border-neutral-100">
+                                    <span className="text-[13px] font-bold text-neutral-500 uppercase">
+                                      링크 #{linkIdx + 1}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteProjectLink(activeProject.id, linkIdx)}
+                                      className="text-[13px] font-bold text-red-600 hover:underline px-1"
+                                      title="이 링크 삭제"
+                                    >
+                                      ✕ 삭제
+                                    </button>
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div>
+                                      <label className="text-[12px] text-neutral-600 block mb-0.5 font-medium">
+                                        라벨 / 버튼 텍스트 (비워둘 시 기본 '↗')
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={linkItem.label || ''}
+                                        onChange={(e) =>
+                                          handleUpdateProjectLink(activeProject.id, linkIdx, 'label', e.target.value)
+                                        }
+                                        className="w-full border border-neutral-300 px-2 py-1 text-[14px] text-black bg-white"
+                                        placeholder="예: 공식 웹사이트 ↗"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-[12px] text-neutral-600 block mb-0.5 font-medium">
+                                        연결 URL 주소
+                                      </label>
+                                      <input
+                                        type="url"
+                                        value={linkItem.url || ''}
+                                        onChange={(e) =>
+                                          handleUpdateProjectLink(activeProject.id, linkIdx, 'url', e.target.value)
+                                        }
+                                        className="w-full border border-neutral-300 px-2 py-1 text-[14px] text-black bg-white"
+                                        placeholder="https://..."
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="pt-1">
+                            <button
+                              type="button"
+                              onClick={() => handleAddProjectLink(activeProject.id)}
+                              className="text-[14px] font-bold text-black border border-black px-3 py-1 hover:bg-black hover:text-white transition-colors"
+                              style={{ border: '1px solid #000000' }}
+                            >
+                              + 새 링크 행 추가
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -2068,35 +2208,42 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                     )}
                   </div>
 
-                  {/* Compact Square External Link Button */}
+                  {/* Multi-link Buttons Row (Horizontal Flex) */}
                   {(() => {
-                    const projectLinkUrl = (activeProject.linkUrl || activeProject.link || '').trim();
-                    const rawLinkText = (activeProject.linkText || activeProject.linkLabel?.ko || '').trim();
-                    const displayLinkText = rawLinkText || '↗';
-
-                    if (!projectLinkUrl) return null;
+                    const linksList = getProjectLinks(activeProject).filter((l) => l.url && l.url.trim());
+                    if (linksList.length === 0) return null;
 
                     return (
-                      <div className="pt-3 text-left">
-                        <a
-                          href={projectLinkUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center border border-black hover:bg-black hover:text-white transition-colors duration-150 select-none group"
-                          style={{
-                            border: '1px solid #000000',
-                            padding: displayLinkText === '↗' ? '4px 10px' : '4px 12px',
-                            fontSize: '15px',
-                            fontWeight: 500,
-                            lineHeight: '1.4',
-                            textDecoration: 'none',
-                          }}
-                          title={projectLinkUrl}
-                        >
-                          <span className="group-hover:text-white transition-colors" style={{ color: 'inherit' }}>
-                            {displayLinkText}
-                          </span>
-                        </a>
+                      <div className="pt-4 flex items-center gap-2 flex-wrap text-left">
+                        {linksList.map((l, lIdx) => {
+                          const rawLabel = (l.label || '').trim();
+                          const displayLabel = rawLabel
+                            ? (rawLabel.includes('↗') ? rawLabel : `${rawLabel} ↗`)
+                            : '↗';
+
+                          return (
+                            <a
+                              key={l.id || lIdx}
+                              href={l.url.trim()}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center border border-black hover:bg-black hover:text-white transition-colors duration-150 select-none group"
+                              style={{
+                                border: '1px solid #000000',
+                                padding: displayLabel === '↗' ? '4px 10px' : '4px 12px',
+                                fontSize: '15px',
+                                fontWeight: 500,
+                                lineHeight: '1.4',
+                                textDecoration: 'none',
+                              }}
+                              title={l.url}
+                            >
+                              <span className="group-hover:text-white transition-colors" style={{ color: 'inherit' }}>
+                                {displayLabel}
+                              </span>
+                            </a>
+                          );
+                        })}
                       </div>
                     );
                   })()}
