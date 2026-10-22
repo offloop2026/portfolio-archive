@@ -526,22 +526,39 @@
       },
       "media": [
         {
-          "id": "iap-2",
+          "id": "proj-media-1792651480728",
           "type": "image",
-          "url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+          "url": "/uploads/img-1792651480717-IMG_2873.JPG",
           "caption": {
-            "ko": "설치 전경: 부유하는 음향 장치와 관람 동선",
-            "en": "Installation view: Suspended sound apparatus and visitor pathway"
-          },
-          "aspect": "landscape"
+            "ko": "G1 전시장에서는 몸으로 겪은 감각을 시각으로 옮긴 영상과 청각으로 재번역한 사운드 스코어가 어우러지며 공간에 대한 다층적 해석을 보여준다. 내부를 가로지르는 천 가림막과 음향은 관람객의 이동을 유도함과 동시에, 방문객 본인의 몸 역시 전시장 안에서 특정 동선을 움직이게 만드는 일종의 퍼포머로 끌어들인다. 나아가 전시장 외부 벽면에는 개항장에서 보고 듣고 느낀 것들을 담아낸 드로잉이 배치된다. 이 드로잉들은 세 작가가 서로의 선에 즉흥적으로 개입하며 감각을 겹쳐 나간 ‘공동 수행의 흔적’이다. 이러한 즉흥적 행위성은 완결된 기호로 굳어지는 것을 끊임없이 지연시키며 '되다 만 기호'로 이행하는 과정을 보여줌과 동시에, 다양한 문화와 거점이 얽혀 있는 개항장 특유의 동적인 연결 방식을 드러낸다.   ",
+            "en": "In the G1 exhibition space, video works that translate bodily sensations into visual forms harmonize with sound scores re-translated into auditory senses, offering a multilayered interpretation of space. Fabric partitions spanning the interior, alongside the soundscape, guide visitors' movements, drawing their bodies into the space as performers navigating specific paths. Furthermore, drawings reflecting the sights, sounds, and sensations gathered from the Open Port area are installed on the exterior walls of the venue. These drawings serve as \"traces of collective performance,\" created as the three artists spontaneously intervened in one another's lines to layer their sensory experiences. This improvisational act continually defers the hardening of form into completed symbols, illustrating a transition toward 'unformed signs' while exposing the dynamic network of interconnected cultures and hubs unique to the Open Port area."
+          }
         },
         {
-          "id": "media-1792645927572",
+          "id": "proj-media-1792651493638",
           "type": "image",
-          "url": "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1200&auto=format&fit=crop",
+          "url": "/uploads/img-1792651493627-IMG_2872.JPG",
           "caption": {
-            "ko": "새 이미지 캡션",
-            "en": "New image caption"
+            "ko": "",
+            "en": ""
+          }
+        },
+        {
+          "id": "proj-media-1792651505514",
+          "type": "image",
+          "url": "/uploads/img-1792651505505-IMG_2864.JPG",
+          "caption": {
+            "ko": "",
+            "en": ""
+          }
+        },
+        {
+          "id": "proj-media-1792651550113",
+          "type": "image",
+          "url": "/uploads/img-1792651550000-IMG_2867.JPG",
+          "caption": {
+            "ko": "",
+            "en": ""
           }
         }
       ]

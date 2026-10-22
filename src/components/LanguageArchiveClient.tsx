@@ -39,6 +39,7 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [uploadingTarget, setUploadingTarget] = useState<string | null>(null);
 
   // Close mobile drawer on Escape key
   useEffect(() => {
@@ -184,14 +185,14 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
   // ---------------------------------------------------------------------------
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode.trim() === '2026' || passcode.trim() === '1234' || passcode.trim() === 'admin') {
+    if (passcode.trim() === '1025') {
       setIsEditMode(true);
       setShowAuthModal(false);
       setPasscode('');
       setAuthError('');
       triggerToast('편집 모드가 활성화되었습니다.');
     } else {
-      setAuthError('패스코드가 올바르지 않습니다. (기본 패스코드: 2026)');
+      setAuthError('패스코드가 올바르지 않습니다.');
     }
   };
 
@@ -580,6 +581,172 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
   };
 
   // ---------------------------------------------------------------------------
+  // 4-B. LOCAL IMAGE UPLOAD & BASE64 FALLBACK
+  // ---------------------------------------------------------------------------
+  const compressToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = (e.target?.result as string) || '';
+        if (file.size > 1.5 * 1024 * 1024) {
+          const img = document.createElement('img');
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxDim = 1920;
+            let width = img.width;
+            let height = img.height;
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.88));
+          };
+          img.onerror = () => resolve(result);
+          img.src = result;
+        } else {
+          resolve(result);
+        }
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const processImageUpload = async (file: File): Promise<string> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) return data.url;
+      }
+    } catch (e) {
+      console.warn('API upload failed, switching to Base64 fallback:', e);
+    }
+    return await compressToBase64(file);
+  };
+
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    section: 'works' | 'projects',
+    targetId: string,
+    mediaIdx?: number
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const targetKey = mediaIdx !== undefined ? `${section}-media-${mediaIdx}` : `new-${section}-media`;
+    setUploadingTarget(targetKey);
+
+    try {
+      const imageUrl = await processImageUpload(file);
+      if (!imageUrl) {
+        triggerToast('이미지 업로드에 실패했습니다.');
+        return;
+      }
+
+      if (mediaIdx !== undefined) {
+        updateMediaItem(section, targetId, mediaIdx, 'url', imageUrl);
+        triggerToast('이미지가 성공적으로 변경되었습니다.');
+      } else {
+        const newMedia: MediaItem = {
+          id: `${section === 'works' ? 'media' : 'proj-media'}-${Date.now()}`,
+          type: 'image',
+          url: imageUrl,
+          caption: { ko: file.name.replace(/\.[^/.]+$/, ''), en: '' },
+        };
+
+        if (section === 'works') {
+          setContent((prev) => ({
+            ...prev,
+            works: prev.works.map((w) => (w.id === targetId ? { ...w, media: [...w.media, newMedia] } : w)),
+          }));
+        } else {
+          setContent((prev) => ({
+            ...prev,
+            projects: prev.projects.map((p) => (p.id === targetId ? { ...p, media: [...p.media, newMedia] } : p)),
+          }));
+        }
+        setHasUnsavedChanges(true);
+        triggerToast('새 이미지가 성공적으로 추가되었습니다.');
+      }
+    } catch (err) {
+      console.error('Upload handler error:', err);
+      triggerToast('이미지 처리 중 오류가 발생했습니다.');
+    } finally {
+      setUploadingTarget(null);
+      e.target.value = '';
+    }
+  };
+
+  const handleFileDrop = async (
+    e: React.DragEvent<HTMLDivElement>,
+    section: 'works' | 'projects',
+    targetId: string,
+    mediaIdx?: number
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const targetKey = mediaIdx !== undefined ? `${section}-media-${mediaIdx}` : `new-${section}-media`;
+    setUploadingTarget(targetKey);
+
+    try {
+      const imageUrl = await processImageUpload(file);
+      if (!imageUrl) {
+        triggerToast('이미지 업로드에 실패했습니다.');
+        return;
+      }
+
+      if (mediaIdx !== undefined) {
+        updateMediaItem(section, targetId, mediaIdx, 'url', imageUrl);
+        triggerToast('이미지가 성공적으로 변경되었습니다.');
+      } else {
+        const newMedia: MediaItem = {
+          id: `${section === 'works' ? 'media' : 'proj-media'}-${Date.now()}`,
+          type: 'image',
+          url: imageUrl,
+          caption: { ko: file.name.replace(/\.[^/.]+$/, ''), en: '' },
+        };
+
+        if (section === 'works') {
+          setContent((prev) => ({
+            ...prev,
+            works: prev.works.map((w) => (w.id === targetId ? { ...w, media: [...w.media, newMedia] } : w)),
+          }));
+        } else {
+          setContent((prev) => ({
+            ...prev,
+            projects: prev.projects.map((p) => (p.id === targetId ? { ...p, media: [...p.media, newMedia] } : p)),
+          }));
+        }
+        setHasUnsavedChanges(true);
+        triggerToast('새 이미지가 성공적으로 추가되었습니다.');
+      }
+    } catch (err) {
+      console.error('File drop error:', err);
+      triggerToast('이미지 처리 중 오류가 발생했습니다.');
+    } finally {
+      setUploadingTarget(null);
+    }
+  };
+
+  // ---------------------------------------------------------------------------
   // 5. RENDER (3-COLUMN INDEPENDENT SCROLL LAYOUT)
   // ---------------------------------------------------------------------------
   const columnHeightClass = isEditMode
@@ -684,7 +851,7 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
               <div>
                 <input
                   type="password"
-                  placeholder="패스코드 (기본: 2026)"
+                  placeholder="패스코드 입력"
                   value={passcode}
                   onChange={(e) => {
                     setPasscode(e.target.value);
@@ -699,7 +866,7 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                   </p>
                 )}
                 <p className="text-base text-neutral-500 mt-1.5">
-                  * 힌트: 2026
+                  * 관리자 패스코드: 1025
                 </p>
               </div>
               <div className="flex items-center justify-end gap-2 pt-3">
@@ -2079,18 +2246,56 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                 <div className="space-y-12 sm:space-y-16 text-left max-w-[720px]">
                   
                   {isEditMode && (
-                    <div className="flex justify-between items-center pb-2">
-                      <span className="text-base font-bold uppercase tracking-tight">
-                        작품 미디어 리스트 ({activeWork.media.length}개)
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleAddMedia('works', activeWork.id)}
-                        className="text-base font-bold bg-black text-white px-2.5 py-0.5 hover:bg-neutral-800 transition-colors"
-                        style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                    <div className="border border-black p-4 bg-neutral-50 mb-8 space-y-3">
+                      <div className="flex justify-between items-center pb-1">
+                        <span className="text-[17px] font-bold text-black uppercase tracking-tight">
+                          작품 미디어 관리 ({activeWork.media.length}개)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleAddMedia('works', activeWork.id)}
+                          className="text-[14px] text-neutral-600 hover:text-black underline"
+                        >
+                          + URL로 수동 추가
+                        </button>
+                      </div>
+
+                      {/* Drag & Drop / Direct File Upload Box */}
+                      <div
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleFileDrop(e, 'works', activeWork.id)}
+                        className="border-2 border-dashed border-neutral-400 hover:border-black p-5 text-center transition-colors bg-white cursor-pointer relative"
                       >
-                        + 새 이미지 추가
-                      </button>
+                        <input
+                          id="works-new-file-input"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileUpload(e, 'works', activeWork.id)}
+                          disabled={uploadingTarget === 'new-works-media'}
+                          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                        />
+                        {uploadingTarget === 'new-works-media' ? (
+                          <div className="flex items-center justify-center gap-2 text-black font-bold text-[16px] py-3">
+                            <span className="animate-spin inline-block w-4 h-4 border-2 border-black border-t-transparent rounded-full" />
+                            <span>사진 파일 업로드 중... 잠시만 기다려 주세요.</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center gap-1.5 pointer-events-none py-2">
+                            <span className="text-[16px] font-bold text-black">
+                              + 내 컴퓨터에서 사진 파일 직접 선택 / 첨부
+                            </span>
+                            <span className="text-[14px] text-neutral-500">
+                              클릭하여 사진 파일을 선택하거나, 이곳으로 드래그 앤 드롭하세요.
+                            </span>
+                            <div
+                              className="mt-2 inline-block bg-black text-white px-4 py-1.5 text-[15px] font-bold"
+                              style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                            >
+                              [ 📁 사진 파일 선택 / 파일 첨부 ]
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -2105,51 +2310,91 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                           sizes="(max-width: 768px) 100vw, 720px"
                           className="w-full h-auto object-cover block"
                           priority={idx === 0}
+                          unoptimized={true}
                         />
                       </div>
 
                       {isEditMode ? (
-                        <div className="mt-3 p-3 bg-neutral-50 border border-neutral-300 space-y-2">
-                          <div className="flex justify-between items-center">
-                            <span className="text-base font-bold uppercase text-neutral-500">
-                              미디어 {idx + 1}
+                        <div className="mt-3 p-4 bg-neutral-50 border border-neutral-300 space-y-3">
+                          <div className="flex justify-between items-center pb-2 border-b border-neutral-200">
+                            <span className="text-[16px] font-bold uppercase text-black">
+                              미디어 #{idx + 1}
                             </span>
                             {activeWork.media.length > 1 && (
                               <button
                                 type="button"
                                 onClick={() => handleDeleteMedia('works', activeWork.id, idx)}
-                                className="text-base font-bold text-red-600 hover:underline"
+                                className="text-[15px] font-bold text-red-600 hover:underline"
                               >
                                 - 미디어 삭제
                               </button>
                             )}
                           </div>
-                          <div>
-                            <label className="text-base font-medium text-neutral-500 block">이미지 URL</label>
+
+                          {/* Direct file replacement button */}
+                          <div className="p-3 bg-white border border-neutral-300 flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                              <span className="text-[14px] font-bold text-black block">사진 파일 교체</span>
+                              <span className="text-[12px] text-neutral-500 block truncate max-w-[320px]">
+                                {mediaItem.url.startsWith('data:')
+                                  ? '현재: 첨부된 파일 (Base64)'
+                                  : mediaItem.url.startsWith('/uploads/')
+                                  ? `현재: 서버 파일 (${mediaItem.url.replace('/uploads/', '')})`
+                                  : '현재: 웹 URL 이미지'}
+                              </span>
+                            </div>
+                            <label
+                              htmlFor={`works-file-replace-${idx}`}
+                              className="cursor-pointer inline-flex items-center gap-1.5 bg-black text-white px-3.5 py-1.5 text-[14px] font-bold hover:bg-neutral-800 transition-colors"
+                              style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                            >
+                              {uploadingTarget === `works-media-${idx}` ? (
+                                <>
+                                  <span className="animate-spin inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full" />
+                                  <span style={{ color: '#ffffff' }}>업로드 중...</span>
+                                </>
+                              ) : (
+                                <span style={{ color: '#ffffff' }}>📁 새 사진 파일 선택</span>
+                              )}
+                            </label>
                             <input
-                              type="url"
+                              id={`works-file-replace-${idx}`}
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFileUpload(e, 'works', activeWork.id, idx)}
+                              disabled={uploadingTarget === `works-media-${idx}`}
+                              className="hidden"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[14px] font-medium text-neutral-600 block mb-1">
+                              이미지 주소 (URL)
+                            </label>
+                            <input
+                              type="text"
                               value={mediaItem.url}
                               onChange={(e) => updateMediaItem('works', activeWork.id, idx, 'url', e.target.value)}
-                              className="w-full border border-neutral-300 px-2 py-1 text-base"
+                              className="w-full border border-neutral-300 px-2.5 py-1.5 text-[15px] text-black bg-white"
                             />
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <label className="text-base font-medium text-neutral-500 block">국문 캡션</label>
+                              <label className="text-[14px] font-medium text-neutral-600 block mb-1">국문 캡션</label>
                               <input
                                 type="text"
                                 value={mediaItem.caption?.ko || ''}
                                 onChange={(e) => updateMediaItem('works', activeWork.id, idx, 'ko', e.target.value)}
-                                className="w-full border border-neutral-300 px-2 py-1 text-base"
+                                className="w-full border border-neutral-300 px-2.5 py-1.5 text-[15px] text-black bg-white"
                               />
                             </div>
                             <div>
-                              <label className="text-base font-medium text-neutral-500 block">영문 캡션</label>
+                              <label className="text-[14px] font-medium text-neutral-600 block mb-1">영문 캡션</label>
                               <input
                                 type="text"
                                 value={mediaItem.caption?.en || ''}
                                 onChange={(e) => updateMediaItem('works', activeWork.id, idx, 'en', e.target.value)}
-                                className="w-full border border-neutral-300 px-2 py-1 text-base text-neutral-600"
+                                className="w-full border border-neutral-300 px-2.5 py-1.5 text-[15px] text-neutral-600 bg-white"
                               />
                             </div>
                           </div>
@@ -2175,18 +2420,56 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                 <div className="space-y-12 sm:space-y-16 text-left max-w-[720px]">
                   
                   {isEditMode && (
-                    <div className="flex justify-between items-center pb-2">
-                      <span className="text-base font-bold uppercase tracking-tight">
-                        프로젝트 미디어 리스트 ({activeProject.media.length}개)
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleAddMedia('projects', activeProject.id)}
-                        className="text-base font-bold bg-black text-white px-2.5 py-0.5 hover:bg-neutral-800 transition-colors"
-                        style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                    <div className="border border-black p-4 bg-neutral-50 mb-8 space-y-3">
+                      <div className="flex justify-between items-center pb-1">
+                        <span className="text-[17px] font-bold text-black uppercase tracking-tight">
+                          프로젝트 미디어 관리 ({activeProject.media.length}개)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleAddMedia('projects', activeProject.id)}
+                          className="text-[14px] text-neutral-600 hover:text-black underline"
+                        >
+                          + URL로 수동 추가
+                        </button>
+                      </div>
+
+                      {/* Drag & Drop / Direct File Upload Box */}
+                      <div
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleFileDrop(e, 'projects', activeProject.id)}
+                        className="border-2 border-dashed border-neutral-400 hover:border-black p-5 text-center transition-colors bg-white cursor-pointer relative"
                       >
-                        + 새 이미지 추가
-                      </button>
+                        <input
+                          id="projects-new-file-input"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileUpload(e, 'projects', activeProject.id)}
+                          disabled={uploadingTarget === 'new-projects-media'}
+                          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                        />
+                        {uploadingTarget === 'new-projects-media' ? (
+                          <div className="flex items-center justify-center gap-2 text-black font-bold text-[16px] py-3">
+                            <span className="animate-spin inline-block w-4 h-4 border-2 border-black border-t-transparent rounded-full" />
+                            <span>사진 파일 업로드 중... 잠시만 기다려 주세요.</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center gap-1.5 pointer-events-none py-2">
+                            <span className="text-[16px] font-bold text-black">
+                              + 내 컴퓨터에서 사진 파일 직접 선택 / 첨부
+                            </span>
+                            <span className="text-[14px] text-neutral-500">
+                              클릭하여 사진 파일을 선택하거나, 이곳으로 드래그 앤 드롭하세요.
+                            </span>
+                            <div
+                              className="mt-2 inline-block bg-black text-white px-4 py-1.5 text-[15px] font-bold"
+                              style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                            >
+                              [ 📁 사진 파일 선택 / 파일 첨부 ]
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -2202,51 +2485,91 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                           sizes="(max-width: 768px) 100vw, 720px"
                           className="w-full h-auto object-cover block"
                           priority={idx === 0}
+                          unoptimized={true}
                         />
                       </div>
 
                       {isEditMode ? (
-                        <div className="mt-3 p-3 bg-neutral-50 border border-neutral-300 space-y-2">
-                          <div className="flex justify-between items-center">
-                            <span className="text-base font-bold uppercase text-neutral-500">
-                              미디어 {idx + 1}
+                        <div className="mt-3 p-4 bg-neutral-50 border border-neutral-300 space-y-3">
+                          <div className="flex justify-between items-center pb-2 border-b border-neutral-200">
+                            <span className="text-[16px] font-bold uppercase text-black">
+                              미디어 #{idx + 1}
                             </span>
                             {activeProject.media.length > 1 && (
                               <button
                                 type="button"
                                 onClick={() => handleDeleteMedia('projects', activeProject.id, idx)}
-                                className="text-base font-bold text-red-600 hover:underline"
+                                className="text-[15px] font-bold text-red-600 hover:underline"
                               >
                                 - 미디어 삭제
                               </button>
                             )}
                           </div>
-                          <div>
-                            <label className="text-base font-medium text-neutral-500 block">이미지 URL</label>
+
+                          {/* Direct file replacement button */}
+                          <div className="p-3 bg-white border border-neutral-300 flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                              <span className="text-[14px] font-bold text-black block">사진 파일 교체</span>
+                              <span className="text-[12px] text-neutral-500 block truncate max-w-[320px]">
+                                {mediaItem.url.startsWith('data:')
+                                  ? '현재: 첨부된 파일 (Base64)'
+                                  : mediaItem.url.startsWith('/uploads/')
+                                  ? `현재: 서버 파일 (${mediaItem.url.replace('/uploads/', '')})`
+                                  : '현재: 웹 URL 이미지'}
+                              </span>
+                            </div>
+                            <label
+                              htmlFor={`projects-file-replace-${idx}`}
+                              className="cursor-pointer inline-flex items-center gap-1.5 bg-black text-white px-3.5 py-1.5 text-[14px] font-bold hover:bg-neutral-800 transition-colors"
+                              style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                            >
+                              {uploadingTarget === `projects-media-${idx}` ? (
+                                <>
+                                  <span className="animate-spin inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full" />
+                                  <span style={{ color: '#ffffff' }}>업로드 중...</span>
+                                </>
+                              ) : (
+                                <span style={{ color: '#ffffff' }}>📁 새 사진 파일 선택</span>
+                              )}
+                            </label>
                             <input
-                              type="url"
+                              id={`projects-file-replace-${idx}`}
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFileUpload(e, 'projects', activeProject.id, idx)}
+                              disabled={uploadingTarget === `projects-media-${idx}`}
+                              className="hidden"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[14px] font-medium text-neutral-600 block mb-1">
+                              이미지 주소 (URL)
+                            </label>
+                            <input
+                              type="text"
                               value={mediaItem.url}
                               onChange={(e) => updateMediaItem('projects', activeProject.id, idx, 'url', e.target.value)}
-                              className="w-full border border-neutral-300 px-2 py-1 text-base"
+                              className="w-full border border-neutral-300 px-2.5 py-1.5 text-[15px] text-black bg-white"
                             />
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <label className="text-base font-medium text-neutral-500 block">국문 캡션</label>
+                              <label className="text-[14px] font-medium text-neutral-600 block mb-1">국문 캡션</label>
                               <input
                                 type="text"
                                 value={mediaItem.caption?.ko || ''}
                                 onChange={(e) => updateMediaItem('projects', activeProject.id, idx, 'ko', e.target.value)}
-                                className="w-full border border-neutral-300 px-2 py-1 text-base"
+                                className="w-full border border-neutral-300 px-2.5 py-1.5 text-[15px] text-black bg-white"
                               />
                             </div>
                             <div>
-                              <label className="text-base font-medium text-neutral-500 block">영문 캡션</label>
+                              <label className="text-[14px] font-medium text-neutral-600 block mb-1">영문 캡션</label>
                               <input
                                 type="text"
                                 value={mediaItem.caption?.en || ''}
                                 onChange={(e) => updateMediaItem('projects', activeProject.id, idx, 'en', e.target.value)}
-                                className="w-full border border-neutral-300 px-2 py-1 text-base text-neutral-600"
+                                className="w-full border border-neutral-300 px-2.5 py-1.5 text-[15px] text-neutral-600 bg-white"
                               />
                             </div>
                           </div>
