@@ -1005,64 +1005,7 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
             </button>
           </div>
 
-          {/* 2. Works */}
-          <div>
-            <h2
-              className="title section-title tracking-tight text-black mb-3"
-              style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1.3', color: '#000' }}
-            >
-              Works
-            </h2>
-            <ul className="space-y-2">
-              {content.works.map((work) => {
-                const isActive = activeSelection.section === 'works' && activeSelection.id === work.id;
-                return (
-                  <li key={work.id} style={{ fontSize: '17px', lineHeight: '1.6' }}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        handleSelect({ section: 'works', id: work.id });
-                        setIsMobileMenuOpen(false);
-                        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className="text-left flex items-start gap-2 w-full hover:opacity-70"
-                      style={{ fontSize: '17px', lineHeight: '1.6' }}
-                    >
-                      <span className="text-black select-none mt-0.5" style={{ fontSize: '17px', lineHeight: '1.6' }}>-</span>
-                      <span className="flex-1">
-                        <span
-                          className={
-                            isActive
-                              ? 'editorial-highlight active selected'
-                              : 'text-black'
-                          }
-                          style={
-                            isActive
-                              ? {
-                                  fontSize: '17px',
-                                  backgroundColor: '#000000',
-                                  color: '#ffffff',
-                                  WebkitTextFillColor: '#ffffff',
-                                  padding: '2px 6px',
-                                  display: 'inline',
-                                  boxDecorationBreak: 'clone',
-                                  WebkitBoxDecorationBreak: 'clone',
-                                }
-                              : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
-                          }
-                          data-active={isActive ? 'true' : undefined}
-                        >
-                          {work.titleKo} ({work.titleEn})
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* 3. Projects */}
+          {/* 2. Projects */}
           <div>
             <h2
               className="title section-title tracking-tight text-black mb-3"
@@ -1110,6 +1053,63 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                           data-active={isActive ? 'true' : undefined}
                         >
                           {proj.titleKo} ({proj.titleEn})
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* 3. Works */}
+          <div>
+            <h2
+              className="title section-title tracking-tight text-black mb-3"
+              style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1.3', color: '#000' }}
+            >
+              Works
+            </h2>
+            <ul className="space-y-2">
+              {content.works.map((work) => {
+                const isActive = activeSelection.section === 'works' && activeSelection.id === work.id;
+                return (
+                  <li key={work.id} style={{ fontSize: '17px', lineHeight: '1.6' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSelect({ section: 'works', id: work.id });
+                        setIsMobileMenuOpen(false);
+                        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="text-left flex items-start gap-2 w-full hover:opacity-70"
+                      style={{ fontSize: '17px', lineHeight: '1.6' }}
+                    >
+                      <span className="text-black select-none mt-0.5" style={{ fontSize: '17px', lineHeight: '1.6' }}>-</span>
+                      <span className="flex-1">
+                        <span
+                          className={
+                            isActive
+                              ? 'editorial-highlight active selected'
+                              : 'text-black'
+                          }
+                          style={
+                            isActive
+                              ? {
+                                  fontSize: '17px',
+                                  backgroundColor: '#000000',
+                                  color: '#ffffff',
+                                  WebkitTextFillColor: '#ffffff',
+                                  padding: '2px 6px',
+                                  display: 'inline',
+                                  boxDecorationBreak: 'clone',
+                                  WebkitBoxDecorationBreak: 'clone',
+                                }
+                              : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
+                          }
+                          data-active={isActive ? 'true' : undefined}
+                        >
+                          {work.titleKo} ({work.titleEn})
                         </span>
                       </span>
                     </button>
@@ -1238,74 +1238,8 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
               </div>
             </div>
 
-            {/* 2. Works Section */}
+            {/* 2. Projects Section */}
             <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h2
-                  className="title section-title tracking-tight text-black leading-snug m-0"
-                  style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1.3', color: '#000' }}
-                >
-                  Works
-                </h2>
-                {isEditMode && (
-                  <button
-                    type="button"
-                    onClick={handleAddWork}
-                    className="text-base font-bold border border-black px-1.5 py-0.5 hover:bg-black hover:text-white transition-colors"
-                    style={{ color: '#000000' }}
-                    title="새 작업 추가"
-                  >
-                    + Add
-                  </button>
-                )}
-              </div>
-              <ul className="space-y-2.5">
-                {content.works.map((work) => {
-                  const isActive = activeSelection.section === 'works' && activeSelection.id === work.id;
-                  return (
-                    <li key={work.id} style={{ fontSize: '17px', lineHeight: '1.6' }}>
-                      <button
-                        type="button"
-                        onClick={() => handleSelect({ section: 'works', id: work.id })}
-                        className="transition-opacity text-left flex items-start gap-2 w-full hover:opacity-70"
-                        style={{ fontSize: '17px', lineHeight: '1.6' }}
-                      >
-                        <span className="text-black select-none mt-0.5" style={{ fontSize: '17px', lineHeight: '1.6' }}>-</span>
-                        <span className="flex-1">
-                          <span
-                            className={
-                              isActive
-                                ? 'editorial-highlight active selected'
-                                : 'inline text-black font-normal'
-                            }
-                            style={
-                              isActive
-                                ? {
-                                    fontSize: '17px',
-                                    backgroundColor: '#000000',
-                                    color: '#ffffff',
-                                    WebkitTextFillColor: '#ffffff',
-                                    padding: '2px 6px',
-                                    display: 'inline',
-                                    boxDecorationBreak: 'clone',
-                                    WebkitBoxDecorationBreak: 'clone',
-                                  }
-                                : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
-                            }
-                            data-active={isActive ? 'true' : undefined}
-                          >
-                            {work.titleKo} ({work.titleEn})
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            {/* 3. Projects Section */}
-            <div className="mb-12">
               <div className="flex items-center justify-between mb-4">
                 <h2
                   className="title section-title tracking-tight text-black leading-snug m-0"
@@ -1361,6 +1295,72 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
                             data-active={isActive ? 'true' : undefined}
                           >
                             {proj.titleKo} ({proj.titleEn})
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* 3. Works Section */}
+            <div className="mb-12">
+              <div className="flex items-center justify-between mb-4">
+                <h2
+                  className="title section-title tracking-tight text-black leading-snug m-0"
+                  style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1.3', color: '#000' }}
+                >
+                  Works
+                </h2>
+                {isEditMode && (
+                  <button
+                    type="button"
+                    onClick={handleAddWork}
+                    className="text-base font-bold border border-black px-1.5 py-0.5 hover:bg-black hover:text-white transition-colors"
+                    style={{ color: '#000000' }}
+                    title="새 작업 추가"
+                  >
+                    + Add
+                  </button>
+                )}
+              </div>
+              <ul className="space-y-2.5">
+                {content.works.map((work) => {
+                  const isActive = activeSelection.section === 'works' && activeSelection.id === work.id;
+                  return (
+                    <li key={work.id} style={{ fontSize: '17px', lineHeight: '1.6' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleSelect({ section: 'works', id: work.id })}
+                        className="transition-opacity text-left flex items-start gap-2 w-full hover:opacity-70"
+                        style={{ fontSize: '17px', lineHeight: '1.6' }}
+                      >
+                        <span className="text-black select-none mt-0.5" style={{ fontSize: '17px', lineHeight: '1.6' }}>-</span>
+                        <span className="flex-1">
+                          <span
+                            className={
+                              isActive
+                                ? 'editorial-highlight active selected'
+                                : 'inline text-black font-normal'
+                            }
+                            style={
+                              isActive
+                                ? {
+                                    fontSize: '17px',
+                                    backgroundColor: '#000000',
+                                    color: '#ffffff',
+                                    WebkitTextFillColor: '#ffffff',
+                                    padding: '2px 6px',
+                                    display: 'inline',
+                                    boxDecorationBreak: 'clone',
+                                    WebkitBoxDecorationBreak: 'clone',
+                                  }
+                                : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
+                            }
+                            data-active={isActive ? 'true' : undefined}
+                          >
+                            {work.titleKo} ({work.titleEn})
                           </span>
                         </span>
                       </button>
