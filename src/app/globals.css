@@ -130,7 +130,9 @@
 }
 
 .column-content {
-  width: 100%;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
 }
 @media (min-width: 769px) {
   .column-content {
@@ -298,6 +300,8 @@ button.bg-white *,
   font-size: 28px !important;
   letter-spacing: 0.12em !important;
   line-height: 1 !important;
+  margin-right: -0.12em !important; /* letter-spacing으로 인한 우측 끝 여백 상쇄 */
+  padding-right: 0 !important;
 }
 
 .mobile-menu-close {

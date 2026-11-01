@@ -1092,7 +1092,7 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
             handleSelect({ section: 'cv' });
             if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className="text-base font-extrabold tracking-tight text-black hover:opacity-70 transition-opacity"
+          className="text-base font-extrabold tracking-tight text-black hover:opacity-70 transition-opacity p-0 m-0"
         >
           {content.artistName.ko}
         </button>
@@ -1101,7 +1101,7 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
           type="button"
           aria-label="메뉴 열기"
           onClick={() => setIsMobileMenuOpen(true)}
-          className="mobile-menu-trigger p-1 text-black hover:opacity-60 transition-opacity"
+          className="mobile-menu-trigger py-1 pl-3 pr-0 m-0 text-black hover:opacity-60 transition-opacity flex items-center justify-end"
         >
           •••
         </button>
@@ -1570,10 +1570,6 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
               height: isEditMode ? 'calc(100vh - 3.5rem)' : '100vh',
               overflowY: 'auto',
               WebkitOverflowScrolling: 'touch',
-              width: '480px',
-              minWidth: '440px',
-              maxWidth: '520px',
-              flexShrink: 0,
             }}
           >
               
