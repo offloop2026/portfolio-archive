@@ -3,6 +3,9 @@ import { Metadata } from 'next';
 import { Language, siteConfig } from '@/data/projects';
 import { LanguageArchiveClient } from '@/components/LanguageArchiveClient';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export function generateStaticParams() {
   return [
     { lang: 'en' },

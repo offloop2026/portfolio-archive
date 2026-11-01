@@ -2,6 +2,9 @@ import { Metadata } from 'next';
 import { siteConfig } from '@/data/projects';
 import { LanguageArchiveClient } from '@/components/LanguageArchiveClient';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: `${siteConfig.name.ko} — 작업 아카이브 및 포트폴리오`,
   description: siteConfig.tagline.ko,

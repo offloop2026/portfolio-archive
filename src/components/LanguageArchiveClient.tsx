@@ -61,7 +61,7 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
   // Load storage status and content on mount with smart localStorage preservation
   useEffect(() => {
     // 1. Fetch storage status
-    fetch('/api/content?status=true')
+    fetch(`/api/content?status=true&t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((info) => {
         if (info) setStorageInfo(info);
@@ -84,7 +84,7 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
     }
 
     // 3. Fetch server data
-    fetch('/api/content', { cache: 'no-store' })
+    fetch(`/api/content?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -304,7 +304,7 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
     try {
       localStorage.removeItem('portfolio_content');
       localStorage.removeItem('portfolio_content_updated_at');
-      const res = await fetch('/api/content', { cache: 'no-store' });
+      const res = await fetch(`/api/content?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const fresh = await res.json();
         setContent(fresh);

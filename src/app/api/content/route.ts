@@ -6,6 +6,12 @@ import { getContentData, saveContentData, getStorageStatus } from '@/lib/content
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+const noCacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -13,9 +19,7 @@ export async function GET(request: NextRequest) {
       const status = await getStorageStatus();
       return NextResponse.json(status, {
         status: 200,
-        headers: {
-          'Cache-Control': 'no-store, max-age=0, must-revalidate',
-        },
+        headers: noCacheHeaders,
       });
     }
 
@@ -23,7 +27,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result.data, {
       status: 200,
       headers: {
-        'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        ...noCacheHeaders,
         'x-storage-source': result.source,
       },
     });
@@ -32,9 +36,7 @@ export async function GET(request: NextRequest) {
     const fallback = await getContentData();
     return NextResponse.json(fallback.data, {
       status: 200,
-      headers: {
-        'Cache-Control': 'no-store, max-age=0, must-revalidate',
-      },
+      headers: noCacheHeaders,
     });
   }
 }
@@ -47,7 +49,7 @@ export async function POST(request: NextRequest) {
     if (!data || !data.artistName || !data.works || !data.projects || !data.cv) {
       return NextResponse.json(
         { success: false, error: 'Invalid data format. Required fields missing.' },
-        { status: 400 }
+        { status: 400, headers: noCacheHeaders }
       );
     }
 
@@ -72,16 +74,14 @@ export async function POST(request: NextRequest) {
       },
       {
         status: 200,
-        headers: {
-          'Cache-Control': 'no-store, max-age=0, must-revalidate',
-        },
+        headers: noCacheHeaders,
       }
     );
   } catch (error: any) {
     console.error('Failed to save content in /api/content:', error);
     return NextResponse.json(
       { success: false, error: error?.message || 'Failed to process save request' },
-      { status: 500 }
+      { status: 500, headers: noCacheHeaders }
     );
   }
 }

@@ -91,7 +91,8 @@ export async function getContentData(): Promise<{ data: ProfileData; source: str
       const blobs = await list({ prefix: 'content.json' });
       if (blobs.blobs.length > 0) {
         const targetBlob = blobs.blobs[0];
-        const res = await fetch(targetBlob.url, { cache: 'no-store' });
+        const fetchUrl = `${targetBlob.url}${targetBlob.url.includes('?') ? '&' : '?'}t=${Date.now()}`;
+        const res = await fetch(fetchUrl, { cache: 'no-store' });
         if (res.ok) {
           const parsed = await res.json();
           if (parsed?.artistName) {
