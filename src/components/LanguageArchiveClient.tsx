@@ -131,7 +131,6 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
   // 2. URL QUERY PARAMS & SELECTION STATE
   // ---------------------------------------------------------------------------
   const tabParam = searchParams.get('tab');
-  const workParam = searchParams.get('work') || (tabParam === 'works' ? searchParams.get('id') : null);
   const projectParam = searchParams.get('project') || (tabParam === 'projects' ? searchParams.get('id') : null);
 
   const [activeSelection, setActiveSelection] = useState<ActiveSelection>(() => {
@@ -139,14 +138,14 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
       const found = initialProfileData.projects.find((p) => p.id === projectParam);
       if (found) return { section: 'projects', id: found.id };
     }
-    if (workParam) {
-      const found = initialProfileData.works.find((w) => w.id === workParam);
-      if (found) return { section: 'works', id: found.id };
-    }
-    if (tabParam === 'works' && initialProfileData.works[0]) {
-      return { section: 'works', id: initialProfileData.works[0].id };
+    if (tabParam === 'cv') {
+      return { section: 'cv' };
     }
     if (tabParam === 'projects' && initialProfileData.projects[0]) {
+      return { section: 'projects', id: initialProfileData.projects[0].id };
+    }
+    // Works는 비활성화되었으므로 기본 진입 시 Projects의 첫 번째 항목(또는 CV)을 기본 선택
+    if (initialProfileData.projects && initialProfileData.projects.length > 0) {
       return { section: 'projects', id: initialProfileData.projects[0].id };
     }
     return { section: 'cv' };
@@ -160,17 +159,21 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
         return;
       }
     }
-    if (workParam) {
-      const found = content.works.find((w) => w.id === workParam);
-      if (found) {
-        setActiveSelection({ section: 'works', id: found.id });
-        return;
-      }
+    if (tabParam === 'cv') {
+      setActiveSelection({ section: 'cv' });
+      return;
     }
-    if (tabParam === 'cv' || !tabParam) {
+    if (tabParam === 'projects' && content.projects[0]) {
+      setActiveSelection({ section: 'projects', id: content.projects[0].id });
+      return;
+    }
+    // Works가 지정되었거나 기본 진입인 경우: Projects 첫 번째 항목 또는 CV로 보정
+    if (content.projects && content.projects.length > 0) {
+      setActiveSelection({ section: 'projects', id: content.projects[0].id });
+    } else {
       setActiveSelection({ section: 'cv' });
     }
-  }, [tabParam, workParam, projectParam, content]);
+  }, [tabParam, projectParam, content]);
 
   const activeWork: WorkItem | undefined = useMemo(() => {
     if (activeSelection.section === 'works') {
@@ -187,13 +190,14 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
   }, [activeSelection, content.projects]);
 
   const handleSelect = (selection: ActiveSelection) => {
+    // Works 섹션은 클릭 및 이동 비활성화
+    if (selection.section === 'works') return;
+
     setActiveSelection(selection);
     setIsMobileMenuOpen(false);
 
     if (selection.section === 'cv') {
       router.replace(`/${lang}?tab=cv`, { scroll: false });
-    } else if (selection.section === 'works') {
-      router.replace(`/${lang}?work=${selection.id}`, { scroll: false });
     } else if (selection.section === 'projects') {
       router.replace(`/${lang}?project=${selection.id}`, { scroll: false });
     }
@@ -1242,57 +1246,32 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
             </ul>
           </div>
 
-          {/* 3. Works */}
+          {/* 3. Works (비활성화: 클릭 불가 텍스트 형태) */}
           <div>
             <h2
-              className="title section-title tracking-tight text-black mb-3"
+              className="title section-title tracking-tight text-black mb-3 cursor-default"
               style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1.3', color: '#000' }}
             >
               Works
             </h2>
             <ul className="space-y-2">
               {content.works.map((work) => {
-                const isActive = activeSelection.section === 'works' && activeSelection.id === work.id;
                 return (
                   <li key={work.id} style={{ fontSize: '17px', lineHeight: '1.6' }}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        handleSelect({ section: 'works', id: work.id });
-                        setIsMobileMenuOpen(false);
-                        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className="text-left flex items-start gap-2 w-full hover:opacity-70"
+                    <div
+                      className="text-left flex items-start gap-2 w-full cursor-default select-none"
                       style={{ fontSize: '17px', lineHeight: '1.6' }}
                     >
                       <span className="text-black select-none mt-0.5" style={{ fontSize: '17px', lineHeight: '1.6' }}>-</span>
                       <span className="flex-1">
                         <span
-                          className={
-                            isActive
-                              ? 'editorial-highlight active selected'
-                              : 'text-black'
-                          }
-                          style={
-                            isActive
-                              ? {
-                                  fontSize: '17px',
-                                  backgroundColor: '#000000',
-                                  color: '#ffffff',
-                                  WebkitTextFillColor: '#ffffff',
-                                  padding: '2px 6px',
-                                  display: 'inline',
-                                  boxDecorationBreak: 'clone',
-                                  WebkitBoxDecorationBreak: 'clone',
-                                }
-                              : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
-                          }
-                          data-active={isActive ? 'true' : undefined}
+                          className="text-black font-normal cursor-default"
+                          style={{ fontSize: '17px', lineHeight: '1.6', color: '#000000' }}
                         >
                           {work.titleKo} ({work.titleEn})
                         </span>
                       </span>
-                    </button>
+                    </div>
                   </li>
                 );
               })}
@@ -1484,66 +1463,34 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
               </ul>
             </div>
 
-            {/* 3. Works Section */}
+            {/* 3. Works Section (비활성화: 클릭 불가 텍스트 형태) */}
             <div className="mb-12">
               <div className="flex items-center justify-between mb-4">
                 <h2
-                  className="title section-title tracking-tight text-black leading-snug m-0"
+                  className="title section-title tracking-tight text-black leading-snug m-0 cursor-default"
                   style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1.3', color: '#000' }}
                 >
                   Works
                 </h2>
-                {isEditMode && (
-                  <button
-                    type="button"
-                    onClick={handleAddWork}
-                    className="text-base font-bold border border-black px-1.5 py-0.5 hover:bg-black hover:text-white transition-colors"
-                    style={{ color: '#000000' }}
-                    title="새 작업 추가"
-                  >
-                    + Add
-                  </button>
-                )}
               </div>
               <ul className="space-y-2.5">
                 {content.works.map((work) => {
-                  const isActive = activeSelection.section === 'works' && activeSelection.id === work.id;
                   return (
                     <li key={work.id} style={{ fontSize: '17px', lineHeight: '1.6' }}>
-                      <button
-                        type="button"
-                        onClick={() => handleSelect({ section: 'works', id: work.id })}
-                        className="transition-opacity text-left flex items-start gap-2 w-full hover:opacity-70"
+                      <div
+                        className="text-left flex items-start gap-2 w-full cursor-default select-none"
                         style={{ fontSize: '17px', lineHeight: '1.6' }}
                       >
                         <span className="text-black select-none mt-0.5" style={{ fontSize: '17px', lineHeight: '1.6' }}>-</span>
                         <span className="flex-1">
                           <span
-                            className={
-                              isActive
-                                ? 'editorial-highlight active selected'
-                                : 'inline text-black font-normal'
-                            }
-                            style={
-                              isActive
-                                ? {
-                                    fontSize: '17px',
-                                    backgroundColor: '#000000',
-                                    color: '#ffffff',
-                                    WebkitTextFillColor: '#ffffff',
-                                    padding: '2px 6px',
-                                    display: 'inline',
-                                    boxDecorationBreak: 'clone',
-                                    WebkitBoxDecorationBreak: 'clone',
-                                  }
-                                : { fontSize: '17px', lineHeight: '1.6', color: '#000000' }
-                            }
-                            data-active={isActive ? 'true' : undefined}
+                            className="inline text-black font-normal cursor-default"
+                            style={{ fontSize: '17px', lineHeight: '1.6', color: '#000000' }}
                           >
                             {work.titleKo} ({work.titleEn})
                           </span>
                         </span>
-                      </button>
+                      </div>
                     </li>
                   );
                 })}
@@ -1820,10 +1767,10 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
               )}
 
               {/* =============================================================
-                  WORKS MODE: Reference Natural Editorial Narrative Spec Layout
+                  WORKS MODE: 비활성화됨 (상세 내용 렌더링 차단)
                   ============================================================= */}
               {activeSelection.section === 'works' && activeWork && (
-                <div>
+                <div className="hidden" style={{ display: 'none' }} aria-hidden="true">
                   {/* Title, English Title & (Year) */}
                   <div className="mb-7">
                     {isEditMode ? (
@@ -2523,10 +2470,10 @@ function ArchiveContent({ lang }: LanguageArchiveClientProps) {
               )}
 
               {/* =============================================================
-                  WORKS MODE: Vertical Media Scroll (Fluid Captions)
+                  WORKS MODE: 비활성화됨 (미디어 렌더링 차단)
                   ============================================================= */}
               {activeSelection.section === 'works' && activeWork && (
-                <div className="space-y-12 sm:space-y-16 text-left max-w-[720px]">
+                <div className="hidden" style={{ display: 'none' }} aria-hidden="true">
                   
                   {isEditMode && (
                     <div className="border border-black p-4 bg-neutral-50 mb-8 space-y-3">
